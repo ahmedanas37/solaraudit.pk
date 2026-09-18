@@ -1,6 +1,7 @@
 /* SOLARAUDIT.ONLINE - Clean, Professional Utility Styles */
 
 :root {
+  color-scheme: light !important;
   --bg-page: #f8fafc;
   --bg-card: #ffffff;
   --border-color: #e2e8f0;

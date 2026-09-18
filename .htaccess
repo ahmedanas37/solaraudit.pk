@@ -62,9 +62,20 @@
 # 4. Security & Performance Headers
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
-  Header set X-Frame-Options "SAMEORIGIN"
   Header set X-XSS-Protection "1; mode=block"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Exclude widget.html from X-Frame-Options to allow embedding across external websites
+  SetEnvIf Request_URI "(widget\.html)$" IS_WIDGET
+  Header set X-Frame-Options "SAMEORIGIN" env=!IS_WIDGET
+  Header set Content-Security-Policy "frame-ancestors *" env=IS_WIDGET
+
+  <Files "widget.html">
+    Header unset X-Frame-Options
+    Header always unset X-Frame-Options
+    Header set Content-Security-Policy "frame-ancestors *"
+    Header always set Content-Security-Policy "frame-ancestors *"
+  </Files>
 </IfModule>
 
 # 5. Disable Directory Browsing
