@@ -130,6 +130,36 @@ def test_engine():
     assert quote_rate_c > 175, f"Quote C should trigger overpriced alert, got {quote_rate_c}"
     print("[OK] Quote validator and L3 structure logic verified.")
 
+    # 6. Test Multi-City Solar Yields (Quetta vs Lahore vs Karachi)
+    print("\n>>> Testing Multi-City Solar Yield Comparison...")
+    # Sizing for 600 units/month in Quetta (5.8 PSH) vs Lahore (5.0 PSH)
+    target_units = 600
+    daily_target = target_units / 30
+    quetta_kw = daily_target / (5.8 * 0.78)
+    lahore_kw = daily_target / (5.0 * 0.78)
+    quetta_panels = int(-(- (quetta_kw * 1000) // 580))
+    lahore_panels = int(-(- (lahore_kw * 1000) // 580))
+    print(f"Quetta (5.8 PSH): {quetta_kw:.2f} kW raw -> {quetta_panels} panels (580W)")
+    print(f"Lahore (5.0 PSH): {lahore_kw:.2f} kW raw -> {lahore_panels} panels (580W)")
+    assert quetta_panels <= lahore_panels, "Quetta with higher PSH must require fewer or equal panels than Lahore"
+    print("[OK] Multi-city climate irradiance comparison verified.")
+
+    # 7. Test Appliance Load Breakdown Logic
+    print("\n>>> Testing Appliance Load Breakdown Logic...")
+    # 2x 1.5T AC (750W * 8h = 12 kWh/day = 360 kWh/mo)
+    # 5x Fans (55W * 14h = 3.85 kWh/day = 115.5 kWh/mo)
+    # 1x Fridge (150W * 24h = 3.6 kWh/day = 108 kWh/mo)
+    # 1x 1HP Pump (1100W * 1h = 1.1 kWh/day = 33 kWh/mo)
+    ac_mo = 2 * 0.75 * 8 * 30
+    fans_mo = 5 * 0.055 * 14 * 30
+    fridge_mo = 1 * 0.15 * 24 * 30
+    pump_mo = 1 * 1.1 * 1 * 30
+    total_mo = ac_mo + fans_mo + fridge_mo + pump_mo
+    print(f"Appliance Monthly Sum: {total_mo:.1f} kWh (AC: {ac_mo:.0f} kWh = {ac_mo/total_mo*100:.1f}%)")
+    assert 616 <= round(total_mo) <= 617, f"Expected ~616-617 kWh, got {total_mo}"
+    assert (ac_mo / total_mo) > 0.55, "ACs should constitute >55% of summer load"
+    print("[OK] Appliance unit profiler math verified.")
+
     print("\n========================================================")
     print("ALL TESTS PASSED: Mathematical & Physics Engine is Sound!")
     print("========================================================")

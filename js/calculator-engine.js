@@ -163,7 +163,8 @@ const CalculatorEngine = (function () {
       areaMarlas,
       estimatedMonthlyGenerationUnits,
       city: city.name,
-      psh
+      psh,
+      climate: city.climate || ""
     };
   }
 
@@ -356,8 +357,8 @@ const CalculatorEngine = (function () {
     const totalWatts = quotedKw * 1000;
     const ratePerWatt = Math.round(quotedPricePkr / totalWatts);
     const benchmarks = systemType === "ongrid"
-      ? (data.hardware.quoteBenchmarks ? data.hardware.quoteBenchmarks.onGridNoBattery : { minFair: 85, maxFair: 115, cutCornerThreshold: 75, overpricedThreshold: 125 })
-      : (data.hardware.quoteBenchmarks ? data.hardware.quoteBenchmarks.hybridWithBattery : { minFair: 130, maxFair: 165, cutCornerThreshold: 115, overpricedThreshold: 175 });
+      ? (data.hardware.quoteBenchmarks ? data.hardware.quoteBenchmarks.onGridNoBattery : { minFair: 75, maxFair: 95, cutCornerThreshold: 65, overpricedThreshold: 110 })
+      : (data.hardware.quoteBenchmarks ? data.hardware.quoteBenchmarks.hybridWithBattery : { minFair: 105, maxFair: 135, cutCornerThreshold: 95, overpricedThreshold: 150 });
 
     let status = "fair";
     let statusClass = "text-emerald-900 bg-emerald-50 border-emerald-200";
@@ -394,6 +395,74 @@ const CalculatorEngine = (function () {
     };
   }
 
+  /**
+   * Calculates detailed appliance load breakdown (daily & monthly kWh, % share, estimated units and bill).
+   */
+  function calculateApplianceBreakdown(appliances = {}, discoKey = "kelectric") {
+    const defs = {
+      ac15: { name: "1.5-Ton Inverter AC", watts: 750, defaultHours: 8 },
+      ac10: { name: "1.0-Ton Inverter AC", watts: 550, defaultHours: 8 },
+      fans: { name: "Ceiling Fans", watts: 55, defaultHours: 14 },
+      fridge: { name: "Inverter Refrigerator", watts: 150, defaultHours: 24 },
+      freezer: { name: "Deep Freezer", watts: 180, defaultHours: 24 },
+      pump: { name: "1.0 HP Water Motor", watts: 1100, defaultHours: 1 },
+      lights: { name: "LED Lights & TV/Wi-Fi", watts: 150, defaultHours: 6 }
+    };
+
+    const items = [];
+    let totalDailyKwh = 0;
+
+    for (const key of Object.keys(defs)) {
+      const def = defs[key];
+      let count = 0;
+      let hours = def.defaultHours;
+
+      if (appliances[key] !== undefined) {
+        if (typeof appliances[key] === "object") {
+          count = appliances[key].count || 0;
+          hours = appliances[key].hours !== undefined ? appliances[key].hours : def.defaultHours;
+        } else {
+          count = parseInt(appliances[key], 10) || 0;
+        }
+      }
+
+      const dailyKwh = (count * def.watts * hours) / 1000;
+      const monthlyKwh = dailyKwh * 30;
+      totalDailyKwh += dailyKwh;
+
+      items.push({
+        key,
+        name: def.name,
+        count,
+        hours,
+        watts: def.watts,
+        dailyKwh: parseFloat(dailyKwh.toFixed(2)),
+        monthlyKwh: Math.round(monthlyKwh)
+      });
+    }
+
+    const totalMonthlyUnits = Math.round(totalDailyKwh * 30);
+
+    // Calculate percentage shares
+    items.forEach(item => {
+      item.percentOfTotal = totalMonthlyUnits > 0 ? Math.round((item.monthlyKwh / totalMonthlyUnits) * 100) : 0;
+    });
+
+    // Sort items by monthly consumption descending so top energy users appear first
+    items.sort((a, b) => b.monthlyKwh - a.monthlyKwh);
+
+    // Estimate bill from units
+    const billRes = calculateBillFromUnits(totalMonthlyUnits, discoKey);
+
+    return {
+      items,
+      totalDailyKwh: parseFloat(totalDailyKwh.toFixed(2)),
+      totalMonthlyUnits,
+      estimatedBillPkr: billRes.totalBill,
+      billDetails: billRes
+    };
+  }
+
   return {
     calculateBillFromUnits,
     estimateUnitsFromBill,
@@ -401,7 +470,8 @@ const CalculatorEngine = (function () {
     calculateNightBattery,
     calculateFinancials,
     calculateSweetSpot,
-    validateInstallerQuote
+    validateInstallerQuote,
+    calculateApplianceBreakdown
   };
 })();
 
