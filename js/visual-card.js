@@ -174,9 +174,14 @@ Note: Quotations exceeding standard wholesale benchmarks or substituting CCA (co
 Client Verification Tool: https://solaraudit.online/solar-quote-validator.html`;
   }
 
-  return {
+  const visualCardObj = {
     generatePngCard,
     generateContractorTender
   };
+
+  if (typeof window !== "undefined") {
+    window.VisualCard = visualCardObj;
+  }
+  return visualCardObj;
 
 })();
