@@ -466,6 +466,7 @@ const CalculatorEngine = (function () {
   return {
     calculateBillFromUnits,
     estimateUnitsFromBill,
+    reverseUnitsFromBill: estimateUnitsFromBill,
     calculateSolarSizing,
     calculateNightBattery,
     calculateFinancials,

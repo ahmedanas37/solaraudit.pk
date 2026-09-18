@@ -112,21 +112,28 @@
       const fullAuditLink = document.getElementById("widgetFullAuditLink");
 
       function update() {
-        const city = citySelect.value;
-        const bill = parseInt(billSlider.value, 10);
-        billDisplay.textContent = "Rs. " + bill.toLocaleString();
+        try {
+          const city = citySelect.value || "lahore";
+          const bill = parseInt(billSlider.value, 10) || 45000;
+          billDisplay.textContent = "Rs. " + bill.toLocaleString();
 
-        const units = CalculatorEngine.reverseUnitsFromBill(bill, city);
-        const sizing = CalculatorEngine.calculateSolarSizing(units, city);
-        const financials = CalculatorEngine.calculateFinancials(sizing, null, bill, city);
+          const cityInfo = TARIFF_DATA.cities[city] || TARIFF_DATA.cities.lahore;
+          const discoKey = cityInfo.disco || "lesco";
 
-        outSolarKw.textContent = sizing.actualDcKw + " kW";
-        outPanels.textContent = sizing.panelCount + "x 580W Panels";
-        outCapex.textContent = "Rs. " + (financials.capexMin / 100000).toFixed(1) + "L – " + (financials.capexMax / 100000).toFixed(1) + "L";
-        outSavings.textContent = "Rs. " + financials.monthlySavings.toLocaleString() + "/mo";
-        outPayback.textContent = "~" + financials.paybackYears + " Years";
+          const units = CalculatorEngine.estimateUnitsFromBill(bill, discoKey);
+          const sizing = CalculatorEngine.calculateSolarSizing(units, city);
+          const financials = CalculatorEngine.calculateFinancials(sizing, null, bill, discoKey);
 
-        fullAuditLink.href = "https://solaraudit.online/?city=" + city + "&bill=" + bill;
+          outSolarKw.textContent = sizing.actualDcKw + " kW";
+          outPanels.textContent = sizing.panelCount + "x 580W Panels";
+          outCapex.textContent = "Rs. " + (financials.capexMin / 100000).toFixed(1) + "L – " + (financials.capexMax / 100000).toFixed(1) + "L";
+          outSavings.textContent = "Rs. " + financials.monthlySavings.toLocaleString() + "/mo";
+          outPayback.textContent = "~" + financials.paybackYears + " Years";
+
+          fullAuditLink.href = "https://solaraudit.online/?city=" + city + "&bill=" + bill;
+        } catch (err) {
+          console.error("Widget calculation error:", err);
+        }
       }
 
       citySelect.addEventListener("change", update);
