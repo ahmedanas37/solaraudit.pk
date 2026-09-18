@@ -23,10 +23,14 @@ document.addEventListener("DOMContentLoaded", function () {
     billPkr: initialBill,
     appliances: {
       ac15: 2,
+      ac15_hours: 8,
       ac10: 0,
+      ac10_hours: 8,
       fans: 5,
       fridge: 1,
-      pump: 1
+      freezer: 0,
+      pump: 1,
+      lights: 1
     },
     nightAcEnabled: initialNightAc,
     nightAcCount: 1,
@@ -40,12 +44,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // DOM Elements - Inputs
   const citySelect = document.getElementById("citySelect");
+  const cityIrradiancePsh = document.getElementById("cityIrradiancePsh");
+  const cityIrradianceClimate = document.getElementById("cityIrradianceClimate");
   const billSlider = document.getElementById("billSlider");
   const billValueDisplay = document.getElementById("billValueDisplay");
   const inputModeBillBtn = document.getElementById("modeBillBtn");
   const inputModeApplianceBtn = document.getElementById("modeApplianceBtn");
   const billInputSection = document.getElementById("billInputSection");
   const applianceInputSection = document.getElementById("applianceInputSection");
+  const shortcutToApplianceBtn = document.getElementById("shortcutToApplianceBtn");
+  const shortcutBackToBillBtn = document.getElementById("shortcutBackToBillBtn");
+  const applianceTotalUnitsDisplay = document.getElementById("applianceTotalUnitsDisplay");
+  const applianceTotalBillDisplay = document.getElementById("applianceTotalBillDisplay");
+  const applianceDominantText = document.getElementById("applianceDominantText");
 
   // Meter Phase Controls
   const meterThreePhaseBtn = document.getElementById("meterThreePhaseBtn");
@@ -105,13 +116,14 @@ document.addEventListener("DOMContentLoaded", function () {
   window.appState = state;
 
   // Initialize Appliance Counters
-  const applianceKeys = ["ac15", "ac10", "fans", "fridge", "pump"];
+  const applianceKeys = ["ac15", "ac10", "fans", "fridge", "freezer", "pump", "lights"];
   applianceKeys.forEach((key) => {
     const decBtn = document.getElementById(`dec_${key}`);
     const incBtn = document.getElementById(`inc_${key}`);
     const valSpan = document.getElementById(`val_${key}`);
 
     if (decBtn && incBtn && valSpan) {
+      valSpan.textContent = state.appliances[key] !== undefined ? state.appliances[key] : 0;
       decBtn.addEventListener("click", () => {
         if (state.appliances[key] > 0) {
           state.appliances[key]--;
@@ -130,19 +142,64 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  // Wire AC Runtime Hours Buttons
+  ["ac15", "ac10"].forEach((acKey) => {
+    const group = document.getElementById(`hoursGroup_${acKey}`);
+    if (group) {
+      const buttons = group.querySelectorAll("button[data-hours]");
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((b) => {
+            b.className = "px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:border-slate-400";
+          });
+          btn.className = "px-2 py-0.5 rounded border border-slate-900 bg-slate-900 text-white font-medium";
+          state.appliances[`${acKey}_hours`] = parseInt(btn.getAttribute("data-hours"), 10);
+          recalculate();
+        });
+      });
+    }
+  });
+
+  // Wire Mode Switching & Shortcuts
+  if (shortcutToApplianceBtn) {
+    shortcutToApplianceBtn.addEventListener("click", () => {
+      inputModeApplianceBtn.click();
+    });
+  }
+  if (shortcutBackToBillBtn) {
+    shortcutBackToBillBtn.addEventListener("click", () => {
+      inputModeBillBtn.click();
+    });
+  }
+
+  // City Climate Display Update
+  function updateCityClimateDisplay() {
+    const cityInfo = TARIFF_DATA.cities[state.cityKey] || TARIFF_DATA.cities.karachi;
+    if (cityIrradiancePsh) {
+      cityIrradiancePsh.textContent = `${cityInfo.psh} Peak Sun Hours / Day`;
+    }
+    if (cityIrradianceClimate) {
+      cityIrradianceClimate.textContent = cityInfo.climate || "High year-round solar potential";
+    }
+    if (citySelect && citySelect.value !== state.cityKey) {
+      citySelect.value = state.cityKey;
+    }
+  }
+
   // Event Listeners: City & DISCO
   citySelect.addEventListener("change", (e) => {
     state.cityKey = e.target.value;
     const cityInfo = TARIFF_DATA.cities[state.cityKey] || TARIFF_DATA.cities.karachi;
     state.discoKey = cityInfo.disco;
+    updateCityClimateDisplay();
     recalculate();
   });
 
   // Event Listeners: Input Mode
   inputModeBillBtn.addEventListener("click", () => {
     state.inputMode = "bill";
-    inputModeBillBtn.className = "flex-1 py-1.5 px-3 rounded-md bg-white text-slate-900 font-semibold shadow-sm border border-slate-200 text-xs";
-    inputModeApplianceBtn.className = "flex-1 py-1.5 px-3 rounded-md text-slate-600 hover:text-slate-900 text-xs";
+    inputModeBillBtn.className = "py-1.5 px-3.5 rounded-md bg-white text-slate-900 font-semibold shadow-sm border border-slate-200 text-xs transition-all";
+    inputModeApplianceBtn.className = "py-1.5 px-3.5 rounded-md text-slate-600 hover:text-slate-900 text-xs transition-all";
     billInputSection.classList.remove("hidden");
     applianceInputSection.classList.add("hidden");
     recalculate();
@@ -150,8 +207,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   inputModeApplianceBtn.addEventListener("click", () => {
     state.inputMode = "appliances";
-    inputModeApplianceBtn.className = "flex-1 py-1.5 px-3 rounded-md bg-white text-slate-900 font-semibold shadow-sm border border-slate-200 text-xs";
-    inputModeBillBtn.className = "flex-1 py-1.5 px-3 rounded-md text-slate-600 hover:text-slate-900 text-xs";
+    inputModeApplianceBtn.className = "py-1.5 px-3.5 rounded-md bg-white text-slate-900 font-semibold shadow-sm border border-slate-200 text-xs transition-all";
+    inputModeBillBtn.className = "py-1.5 px-3.5 rounded-md text-slate-600 hover:text-slate-900 text-xs transition-all";
     applianceInputSection.classList.remove("hidden");
     billInputSection.classList.add("hidden");
     recalculate();
@@ -263,6 +320,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Core Recalculation Routine
   function recalculate() {
+    updateCityClimateDisplay();
+
     let monthlyUnits = 0;
     let targetBill = 0;
 
@@ -270,20 +329,38 @@ document.addEventListener("DOMContentLoaded", function () {
       targetBill = state.billPkr;
       monthlyUnits = CalculatorEngine.estimateUnitsFromBill(targetBill, state.discoKey);
     } else {
-      // Calculate units based on appliances
+      // Calculate detailed breakdown based on appliances
       const app = state.appliances;
-      const dailyKwh =
-        (app.ac15 * 0.75 * 8) +
-        (app.ac10 * 0.55 * 8) +
-        (app.fans * 0.055 * 14) +
-        (app.fridge * 0.15 * 24) +
-        (app.pump * 1.1 * 1);
-      monthlyUnits = Math.round(dailyKwh * 30);
-      const billRes = CalculatorEngine.calculateBillFromUnits(monthlyUnits, state.discoKey);
-      targetBill = billRes.totalBill;
+      const breakdown = CalculatorEngine.calculateApplianceBreakdown({
+        ac15: { count: app.ac15, hours: app.ac15_hours || 8 },
+        ac10: { count: app.ac10, hours: app.ac10_hours || 8 },
+        fans: { count: app.fans, hours: 14 },
+        fridge: { count: app.fridge, hours: 24 },
+        freezer: { count: app.freezer || 0, hours: 24 },
+        pump: { count: app.pump, hours: 1 },
+        lights: { count: app.lights !== undefined ? app.lights : 1, hours: 6 }
+      }, state.discoKey);
+
+      monthlyUnits = breakdown.totalMonthlyUnits;
+      targetBill = breakdown.estimatedBillPkr;
       state.billPkr = targetBill;
       billValueDisplay.textContent = `Rs. ${targetBill.toLocaleString()}`;
       billSlider.value = Math.min(180000, targetBill);
+
+      if (applianceTotalUnitsDisplay) {
+        applianceTotalUnitsDisplay.textContent = `~${monthlyUnits.toLocaleString()} Units`;
+      }
+      if (applianceTotalBillDisplay) {
+        applianceTotalBillDisplay.textContent = `~Rs. ${targetBill.toLocaleString()}`;
+      }
+      if (applianceDominantText && breakdown.items.length > 0) {
+        const topItem = breakdown.items[0];
+        if (topItem && topItem.percentOfTotal > 0) {
+          applianceDominantText.textContent = `${topItem.name} (${topItem.percentOfTotal}% of bill)`;
+        } else {
+          applianceDominantText.textContent = "No appliances active";
+        }
+      }
     }
 
     outEstimatedUnits.textContent = `~${monthlyUnits.toLocaleString()} units`;

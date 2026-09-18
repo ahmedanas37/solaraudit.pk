@@ -7,6 +7,8 @@ deployment:
     - /bin/cp -f sitemap.xml $DEPLOYPATH/
     - /bin/cp -f og-image.png $DEPLOYPATH/
     - /bin/cp -f favicon.ico $DEPLOYPATH/
+    - /bin/cp -f favicon.png $DEPLOYPATH/
+    - /bin/cp -f deploy.php $DEPLOYPATH/
     - /bin/cp -Rf css $DEPLOYPATH/
     - /bin/cp -Rf js $DEPLOYPATH/
 
