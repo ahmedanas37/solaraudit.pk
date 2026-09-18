@@ -2,7 +2,10 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/zynk/solaraudit.online
-    - /bin/cp -f index.html $DEPLOYPATH/
-    - /bin/cp -f deploy.php $DEPLOYPATH/
+    - /bin/cp -f *.html $DEPLOYPATH/
+    - /bin/cp -f robots.txt $DEPLOYPATH/
+    - /bin/cp -f sitemap.xml $DEPLOYPATH/
+    - /bin/cp -f og-image.png $DEPLOYPATH/
     - /bin/cp -Rf css $DEPLOYPATH/
     - /bin/cp -Rf js $DEPLOYPATH/
+
