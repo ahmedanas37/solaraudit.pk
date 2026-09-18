@@ -6,10 +6,50 @@
   <meta name="color-scheme" content="light">
   <title>Quick Solar Audit Widget — SOLARAUDIT.ONLINE</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/style.css">
   <style>
-    :root { color-scheme: light !important; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #ffffff !important; color: #0f172a !important; }
+    :root {
+      color-scheme: light !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #cbd5e1;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #0f172a;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s ease, background-color 0.1s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+      background: #1e293b;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #0f172a;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
   </style>
 </head>
 <body class="bg-white text-slate-900 p-3 sm:p-4 antialiased select-none">
@@ -35,7 +75,7 @@
         <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
           <span>City / DISCO</span>
         </div>
-        <select id="widgetCitySelect" class="w-full bg-white border border-slate-300 rounded-md py-1.5 px-2.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-1 focus:ring-slate-900">
+        <select id="widgetCitySelect" class="w-full bg-white border border-slate-300 rounded-md py-1.5 px-2.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-1 focus:ring-slate-900 cursor-pointer">
           <option value="karachi">Karachi (K-Electric)</option>
           <option value="lahore" selected>Lahore (LESCO)</option>
           <option value="islamabad">Islamabad / RWP (IESCO)</option>
@@ -96,9 +136,864 @@
 
   </div>
 
-  <!-- Scripts -->
-  <script src="js/tariff-data.js"></script>
-  <script src="js/calculator-engine.js"></script>
+  <!-- Embedded Tariff & Calculation Engine (100% Self-Contained, Zero External Script Dependencies) -->
+  <script>
+/**
+ * SOLARAUDIT.ONLINE - Tariff & Hardware Pricing Configurations (2026 Edition)
+ * Centralized data file: update this file whenever NEPRA or market rates change.
+ */
+
+const TARIFF_DATA = {
+  version: "2026.1",
+  lastUpdated: "September 2026",
+
+  // Solar Insolation & Climate factors
+  cities: {
+    karachi: { name: "Karachi (K-Electric)", psh: 5.4, disco: "kelectric", climate: "Coastal haze • High year-round sun" },
+    lahore: { name: "Lahore (LESCO)", psh: 5.0, disco: "lesco", climate: "High summer sun • Winter smog factored" },
+    islamabad: { name: "Islamabad / RWP (IESCO)", psh: 5.1, disco: "iesco", climate: "Clean air clearance • Moderate winters" },
+    multan: { name: "Multan / South Punjab (MEPCO)", psh: 5.3, disco: "mepco", climate: "Intense solar insolation • Extreme heat" },
+    faisalabad: { name: "Faisalabad (FESCO)", psh: 5.1, disco: "fesco", climate: "High solar hours • Seasonal dust" },
+    gujranwala: { name: "Gujranwala / Sialkot (GEPCO)", psh: 5.0, disco: "gepco", climate: "Robust summer sun • Dense residential load" },
+    peshawar: { name: "Peshawar (PESCO)", psh: 4.9, disco: "pesco", climate: "High solar angle • Cooler winter months" },
+    quetta: { name: "Quetta / Balochistan (QESCO)", psh: 5.8, disco: "qesco", climate: "Highest solar potential in Pakistan (5.8 PSH)" },
+    sukkur: { name: "Sukkur / Upper Sindh (SEPCO)", psh: 5.5, disco: "sepco", climate: "Intense solar insolation (5.5 PSH)" },
+    hyderabad: { name: "Hyderabad / Lower Sindh (HESCO)", psh: 5.3, disco: "hesco", climate: "Strong wind corridors & reliable sunny days" }
+  },
+
+  // DISCO Base Tariffs & Taxes (NEPRA 2026 residential baseline)
+  discos: {
+    kelectric: {
+      name: "K-Electric",
+      fuelPriceAdjustment: 4.25, // Rs./kWh avg
+      financingSurcharge: 3.23, // Rs./kWh
+      electricityDutyPercent: 1.5, // %
+      gstPercent: 18.0, // 18% GST
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0, // For >5kW sanctioned load
+      // Progressive base tariffs (Rs./unit)
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    lesco: {
+      name: "LESCO (Lahore)",
+      fuelPriceAdjustment: 3.90,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    iesco: {
+      name: "IESCO (Islamabad)",
+      fuelPriceAdjustment: 3.75,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    mepco: {
+      name: "MEPCO (Multan)",
+      fuelPriceAdjustment: 4.10,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    fesco: {
+      name: "FESCO (Faisalabad)",
+      fuelPriceAdjustment: 3.85,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    gepco: {
+      name: "GEPCO (Gujranwala)",
+      fuelPriceAdjustment: 3.95,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    pesco: {
+      name: "PESCO (Peshawar)",
+      fuelPriceAdjustment: 4.15,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    qesco: {
+      name: "QESCO (Quetta)",
+      fuelPriceAdjustment: 3.70,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    sepco: {
+      name: "SEPCO (Sukkur)",
+      fuelPriceAdjustment: 4.30,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    },
+    hesco: {
+      name: "HESCO (Hyderabad)",
+      fuelPriceAdjustment: 4.20,
+      financingSurcharge: 3.23,
+      electricityDutyPercent: 1.5,
+      gstPercent: 18.0,
+      tvFee: 35.0,
+      fixedChargePerKw: 400.0,
+      slabs: {
+        protected_1_100: 11.69,
+        protected_101_200: 14.16,
+        unprotected_1_100: 23.59,
+        unprotected_101_200: 30.07,
+        unprotected_201_300: 34.26,
+        unprotected_301_400: 39.15,
+        unprotected_401_500: 41.36,
+        unprotected_501_600: 42.78,
+        unprotected_601_700: 43.92,
+        unprotected_above_700: 48.84
+      }
+    }
+  },
+
+  // Hardware Pricing & Engineering Constants (Karachi wholesale / retail benchmark)
+  hardware: {
+    panel: {
+      standardWattage: 580, // N-Type TOPCon / Bifacial 580W
+      pricePerWattPkr: 33.0, // Rs./watt (wholesale benchmark)
+      areaSqFtPerPanel: 28.0, // ~2.27m x 1.13m = ~2.56 m² = 27.5-28 sq ft
+      deratingFactor: 0.78 // Temperature degradation (40°C+ ambient), dust, DC wiring losses
+    },
+    inverters: {
+      // Benchmark costs for Tier-1 hybrid inverters (Inverex, Knox, Huawei, Deye)
+      hybrid_3kw: 165000,
+      // Hybrid inverters (pure sine wave 48V / high-voltage 3-phase)
+      hybrid_6kw: 230000,
+      hybrid_8kw: 310000,
+      hybrid_10kw: 380000,
+      hybrid_12kw: 450000,
+      hybrid_15kw: 540000,
+      hybrid_20kw: 680000,
+      hybrid_25kw: 820000,
+      hybrid_30kw: 960000,
+      hybrid_40kw: 1250000,
+      hybrid_50kw: 1550000,
+      // On-grid string inverters
+      ongrid_5kw: 155000,
+      ongrid_10kw: 235000,
+      ongrid_15kw: 310000,
+      ongrid_20kw: 380000,
+      ongrid_25kw: 460000,
+      ongrid_30kw: 540000,
+      ongrid_40kw: 680000,
+      ongrid_50kw: 790000
+    },
+    battery: {
+      // 51.2V 100Ah Lithium (LiFePO4) = 5.12 kWh (Current 2026 Hall Road / Saddar wholesale)
+      lithium_5kwh_unit_cost: 225000,
+      lithium_dod: 0.85, // 85% usable depth of discharge
+      lithium_lifespan_years: 10,
+
+      // 12V 230Ah Deep Cycle Tubular Lead Acid = 2.76 kWh nominal, 1.38 kWh usable
+      tubular_unit_cost: 58000,
+      tubular_dod: 0.50, // 50% max discharge before sulfation
+      tubular_lifespan_years: 2.0
+    },
+    balanceOfSystem: {
+      // Mounting structure, pure copper 6mm DC wire, AC cables, breakers, changeovers, earthing
+      bosCostPerWatt: 20.0,
+      elevatedL3ExtraPerWatt: 13.0, // Additional cost per watt for heavy-duty elevated pergola
+      netMeteringProcessCost: 65000, // DisCo application, testing, green meter installation
+      singlePhaseUpgradeEstCost: 35000 // Estimated DISCO demand notice fee to convert 1-phase to 3-phase
+    },
+    quoteBenchmarks: {
+      hybridWithBattery: {
+        minFair: 105, // Rs./W
+        maxFair: 135,
+        cutCornerThreshold: 95,
+        overpricedThreshold: 150
+      },
+      onGridNoBattery: {
+        minFair: 75,
+        maxFair: 95,
+        cutCornerThreshold: 65,
+        overpricedThreshold: 110
+      }
+    }
+  },
+
+  // Appliance Power Ratings (Average Pakistani household specs)
+  appliances: {
+    inverter_ac_1_5ton: {
+      name: "1.5-Ton Inverter AC (26°C Econ)",
+      startupWatts: 1600,
+      avgRunningWatts: 750,
+      dailyHoursDefault: 8
+    },
+    inverter_ac_1ton: {
+      name: "1.0-Ton Inverter AC (26°C Econ)",
+      startupWatts: 1200,
+      avgRunningWatts: 550,
+      dailyHoursDefault: 8
+    },
+    ceiling_fan: {
+      name: "Standard / BLDC Ceiling Fan",
+      avgRunningWatts: 55,
+      dailyHoursDefault: 14
+    },
+    refrigerator: {
+      name: "Inverter Refrigerator",
+      avgRunningWatts: 150,
+      dailyHoursDefault: 24
+    },
+    water_pump_1hp: {
+      name: "1.0 HP Water Pump",
+      avgRunningWatts: 1100,
+      dailyHoursDefault: 1
+    },
+    deep_freezer: {
+      name: "Chest Deep Freezer",
+      avgRunningWatts: 180,
+      dailyHoursDefault: 24
+    },
+    led_lights_tv: {
+      name: "LED Lights & TV / Wi-Fi",
+      avgRunningWatts: 150,
+      dailyHoursDefault: 6
+    }
+  }
+};
+
+// Export for browser or node test environments
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = TARIFF_DATA;
+}
+
+  </script>
+  <script>
+/**
+ * SOLARAUDIT.ONLINE - Mathematical & Physics Engine
+ * Pure computation module: billing slabs, solar physics, energy storage & payback models.
+ */
+
+const CalculatorEngine = (function () {
+  const data = typeof TARIFF_DATA !== "undefined" ? TARIFF_DATA : require("./tariff-data.js");
+
+  /**
+   * Calculate total PKR bill from monthly consumed units based on NEPRA 2026 progressive slabs.
+   */
+  function calculateBillFromUnits(units, discoKey = "kelectric") {
+    const disco = data.discos[discoKey] || data.discos.kelectric;
+    const slabs = disco.slabs;
+
+    if (units <= 0) return 0;
+
+    let baseEnergyCost = 0;
+    const isProtected = units <= 200; // Protected threshold in Pakistan
+
+    if (isProtected) {
+      if (units <= 100) {
+        baseEnergyCost = units * slabs.protected_1_100;
+      } else {
+        baseEnergyCost = (100 * slabs.protected_1_100) + ((units - 100) * slabs.protected_101_200);
+      }
+    } else {
+      // Unprotected progressive slabs
+      if (units <= 100) {
+        baseEnergyCost = units * slabs.unprotected_1_100;
+      } else if (units <= 200) {
+        baseEnergyCost = (100 * slabs.unprotected_1_100) + ((units - 100) * slabs.unprotected_101_200);
+      } else if (units <= 300) {
+        baseEnergyCost = (100 * slabs.unprotected_1_100) + (100 * slabs.unprotected_101_200) + ((units - 200) * slabs.unprotected_201_300);
+      } else if (units <= 400) {
+        baseEnergyCost = (100 * slabs.unprotected_1_100) + (100 * slabs.unprotected_101_200) + (100 * slabs.unprotected_201_300) + ((units - 300) * slabs.unprotected_301_400);
+      } else if (units <= 500) {
+        baseEnergyCost = (100 * slabs.unprotected_1_100) + (100 * slabs.unprotected_101_200) + (100 * slabs.unprotected_201_300) + (100 * slabs.unprotected_301_400) + ((units - 400) * slabs.unprotected_401_500);
+      } else if (units <= 600) {
+        baseEnergyCost = (100 * slabs.unprotected_1_100) + (100 * slabs.unprotected_101_200) + (100 * slabs.unprotected_201_300) + (100 * slabs.unprotected_301_400) + (100 * slabs.unprotected_401_500) + ((units - 500) * slabs.unprotected_501_600);
+      } else if (units <= 700) {
+        baseEnergyCost = (100 * slabs.unprotected_1_100) + (100 * slabs.unprotected_101_200) + (100 * slabs.unprotected_201_300) + (100 * slabs.unprotected_301_400) + (100 * slabs.unprotected_401_500) + (100 * slabs.unprotected_501_600) + ((units - 600) * slabs.unprotected_601_700);
+      } else {
+        baseEnergyCost = (100 * slabs.unprotected_1_100) + (100 * slabs.unprotected_101_200) + (100 * slabs.unprotected_201_300) + (100 * slabs.unprotected_301_400) + (100 * slabs.unprotected_401_500) + (100 * slabs.unprotected_501_600) + (100 * slabs.unprotected_601_700) + ((units - 700) * slabs.unprotected_above_700);
+      }
+    }
+
+    // Surcharges and Adjustments
+    const fpaCost = units * disco.fuelPriceAdjustment;
+    const financingSurchargeCost = units * disco.financingSurcharge;
+
+    // Fixed capacity charges (applicable for higher sanctioned loads/slabs >300 units)
+    let fixedCharges = 0;
+    if (units > 300 && units <= 700) {
+      fixedCharges = disco.fixedChargePerKw * 5; // Assumed 5 kW sanctioned
+    } else if (units > 700) {
+      fixedCharges = disco.fixedChargePerKw * 10; // Assumed 10 kW sanctioned
+    }
+
+    const subtotalEnergy = baseEnergyCost + fixedCharges;
+    const electricityDuty = subtotalEnergy * (disco.electricityDutyPercent / 100);
+    const taxableAmount = subtotalEnergy + fpaCost + financingSurchargeCost + electricityDuty;
+    const gst = taxableAmount * (disco.gstPercent / 100);
+    const totalBill = Math.round(taxableAmount + gst + disco.tvFee);
+
+    return {
+      units,
+      baseEnergyCost: Math.round(baseEnergyCost),
+      fpaCost: Math.round(fpaCost),
+      financingSurchargeCost: Math.round(financingSurchargeCost),
+      fixedCharges: Math.round(fixedCharges),
+      electricityDuty: Math.round(electricityDuty),
+      gst: Math.round(gst),
+      tvFee: disco.tvFee,
+      totalBill
+    };
+  }
+
+  /**
+   * Reverse-engineers unit consumption from a monthly PKR bill using binary search.
+   */
+  function estimateUnitsFromBill(billPkr, discoKey = "kelectric") {
+    if (!billPkr || billPkr <= 0) return 0;
+
+    let low = 1;
+    let high = 15000;
+    let bestUnits = 1;
+    let minDiff = Infinity;
+
+    // Binary search over 0 - 15000 units range (supports bills up to Rs. 800,000+)
+    for (let i = 0; i < 28; i++) {
+      const mid = Math.round((low + high) / 2);
+      const res = calculateBillFromUnits(mid, discoKey);
+      const diff = Math.abs(res.totalBill - billPkr);
+
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestUnits = mid;
+      }
+
+      if (res.totalBill < billPkr) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    return bestUnits;
+  }
+
+  /**
+   * Calculates required Solar System DC Capacity, panel count, and roof space.
+   */
+  function calculateSolarSizing(monthlyUnits, cityKey = "karachi") {
+    const city = data.cities[cityKey] || data.cities.karachi;
+    const psh = city.psh;
+    const derating = data.hardware.panel.deratingFactor; // 0.78
+    const panelWatts = data.hardware.panel.standardWattage; // 580W
+
+    const dailyUnitsTarget = monthlyUnits / 30;
+    // DC kW = Daily Units / (PSH * Derating)
+    const rawKwRequired = dailyUnitsTarget / (psh * derating);
+
+    // Calculate physical panels needed
+    const panelCount = Math.max(4, Math.ceil((rawKwRequired * 1000) / panelWatts));
+    const actualDcKw = (panelCount * panelWatts) / 1000;
+
+    // Monthly units generated by this system
+    const estimatedMonthlyGenerationUnits = Math.round(actualDcKw * psh * derating * 30);
+
+    // Recommended Inverter capacity (kW)
+    let inverterKw = 3;
+    let inverterType = "hybrid_3kw";
+    if (actualDcKw > 3.5 && actualDcKw <= 7.0) {
+      inverterKw = 6;
+      inverterType = "hybrid_6kw";
+    } else if (actualDcKw > 7.0 && actualDcKw <= 9.0) {
+      inverterKw = 8;
+      inverterType = "hybrid_8kw";
+    } else if (actualDcKw > 9.0 && actualDcKw <= 11.5) {
+      inverterKw = 10;
+      inverterType = "hybrid_10kw";
+    } else if (actualDcKw > 11.5 && actualDcKw <= 14.0) {
+      inverterKw = 12;
+      inverterType = "hybrid_12kw";
+    } else if (actualDcKw > 14.0 && actualDcKw <= 17.5) {
+      inverterKw = 15;
+      inverterType = "hybrid_15kw";
+    } else if (actualDcKw > 17.5 && actualDcKw <= 23.0) {
+      inverterKw = 20;
+      inverterType = "hybrid_20kw";
+    } else if (actualDcKw > 23.0 && actualDcKw <= 28.0) {
+      inverterKw = 25;
+      inverterType = "hybrid_25kw";
+    } else if (actualDcKw > 28.0 && actualDcKw <= 35.0) {
+      inverterKw = 30;
+      inverterType = "hybrid_30kw";
+    } else if (actualDcKw > 35.0 && actualDcKw <= 45.0) {
+      inverterKw = 40;
+      inverterType = "hybrid_40kw";
+    } else if (actualDcKw > 45.0) {
+      inverterKw = 50;
+      inverterType = "hybrid_50kw";
+    }
+
+    // Roof space requirements
+    const areaSqFt = panelCount * data.hardware.panel.areaSqFtPerPanel;
+    const areaMarlas = (areaSqFt / 225).toFixed(1); // 1 Marla = 225 sq. ft. in Pakistan standard
+
+    return {
+      monthlyUnitsTarget: monthlyUnits,
+      actualDcKw: parseFloat(actualDcKw.toFixed(2)),
+      panelCount,
+      panelWattage: panelWatts,
+      inverterKw,
+      inverterType,
+      areaSqFt,
+      areaMarlas,
+      estimatedMonthlyGenerationUnits,
+      city: city.name,
+      psh,
+      climate: city.climate || ""
+    };
+  }
+
+  /**
+   * Calculates night battery storage requirements for ACs & household baseline.
+   */
+  function calculateNightBattery(acCount = 1, nightHours = 8, batteryPreference = "lithium") {
+    const acWatts = data.appliances.inverter_ac_1_5ton.avgRunningWatts; // 750W
+    const baseFansLightsWatts = 200; // Fans + Wi-Fi + LED lights baseline
+
+    const totalHourlyWatts = (acCount * acWatts) + baseFansLightsWatts;
+    const totalEnergyWh = totalHourlyWatts * nightHours;
+    const totalEnergyKwh = totalEnergyWh / 1000;
+
+    const isLithium = batteryPreference === "lithium";
+
+    let requiredNominalKwh = 0;
+    let unitCount = 0;
+    let estimatedCost = 0;
+    let unitSpec = "";
+    let warningNote = "";
+    let lifespanYears = 0;
+
+    if (isLithium) {
+      const dod = data.hardware.battery.lithium_dod; // 85%
+      const inverterEff = 0.92;
+      requiredNominalKwh = totalEnergyKwh / (dod * inverterEff);
+      unitCount = Math.max(1, Math.ceil(requiredNominalKwh / 5.12));
+      estimatedCost = unitCount * data.hardware.battery.lithium_5kwh_unit_cost;
+      unitSpec = `${unitCount}x 5.12 kWh LiFePO4 (51.2V 100Ah)`;
+      lifespanYears = data.hardware.battery.lithium_lifespan_years;
+      warningNote = "Optimal for continuous AC loads. 4,000+ deep cycle lifespan (approx. 10 years).";
+    } else {
+      // Tubular Lead Acid
+      const dod = data.hardware.battery.tubular_dod; // 50%
+      const inverterEff = 0.85;
+      requiredNominalKwh = totalEnergyKwh / (dod * inverterEff);
+      // 12V 230Ah = 2.76 kWh nominal
+      const rawCount = Math.ceil(requiredNominalKwh / 2.76);
+      // Tubular batteries must be in multiples of 4 for 48V hybrid inverters
+      unitCount = Math.max(4, Math.ceil(rawCount / 4) * 4);
+      estimatedCost = unitCount * data.hardware.battery.tubular_unit_cost;
+      unitSpec = `${unitCount}x 12V 230Ah Deep Cycle Tubular Batteries`;
+      lifespanYears = data.hardware.battery.tubular_lifespan_years;
+      warningNote = "CAUTION: Heavy AC loads accelerate tubular plate sulfation. Expected replacement every 2 to 2.5 years.";
+    }
+
+    return {
+      acCount,
+      nightHours,
+      batteryPreference,
+      totalEnergyKwh: parseFloat(totalEnergyKwh.toFixed(1)),
+      requiredNominalKwh: parseFloat(requiredNominalKwh.toFixed(1)),
+      unitCount,
+      unitSpec,
+      estimatedCost,
+      lifespanYears,
+      warningNote
+    };
+  }
+
+  /**
+   * Comprehensive Turnkey Financials & Payback Period.
+   * @param {Object} options - { mountingType: 'standard'|'elevated', meterType: 'three_phase'|'single_phase' }
+   */
+  function calculateFinancials(sizingResult, batteryResult, preBillPkr, discoKey = "kelectric", includeNetMetering = true, options = {}) {
+    const mountingType = options.mountingType || "standard";
+    const meterType = options.meterType || "three_phase";
+
+    const panelsCost = sizingResult.actualDcKw * 1000 * data.hardware.panel.pricePerWattPkr;
+    const inverterCost = data.hardware.inverters[sizingResult.inverterType] || 280000;
+    
+    // Balance of system (adds extra per watt if elevated L3 structure selected)
+    const baseBosCostPerWatt = data.hardware.balanceOfSystem.bosCostPerWatt;
+    const l3ExtraPerWatt = mountingType === "elevated" ? (data.hardware.balanceOfSystem.elevatedL3ExtraPerWatt || 14.0) : 0;
+    const totalBosRate = baseBosCostPerWatt + l3ExtraPerWatt;
+    const bosCost = sizingResult.actualDcKw * 1000 * totalBosRate;
+
+    const netMeteringCost = includeNetMetering ? data.hardware.balanceOfSystem.netMeteringProcessCost : 0;
+    const batteryCost = batteryResult ? batteryResult.estimatedCost : 0;
+
+    const baseCapex = panelsCost + inverterCost + bosCost + netMeteringCost + batteryCost;
+    const capexMin = Math.round(baseCapex * 0.94);
+    const capexMax = Math.round(baseCapex * 1.06);
+    const avgCapex = Math.round((capexMin + capexMax) / 2);
+
+    // Calculate Residual Bill after solar offset
+    const residualUnits = Math.max(0, sizingResult.monthlyUnitsTarget - sizingResult.estimatedMonthlyGenerationUnits);
+    const postBill = residualUnits > 0 ? calculateBillFromUnits(residualUnits, discoKey).totalBill : 0;
+
+    // Monthly Savings
+    const monthlySavings = Math.max(0, preBillPkr - postBill);
+    const annualSavings = monthlySavings * 12;
+
+    // Payback Period (Months)
+    const paybackMonths = annualSavings > 0 ? Math.round((avgCapex / annualSavings) * 12) : 0;
+    const paybackYears = (paybackMonths / 12).toFixed(1);
+
+    // 5-Year & 10-Year Net Financial Gain
+    const fiveYearNetSavings = Math.round((annualSavings * 5) - avgCapex);
+    const tenYearNetSavings = Math.round((annualSavings * 10) - avgCapex);
+
+    // Single phase upgrade requirement notice
+    const singlePhaseUpgradeFee = meterType === "single_phase" ? (data.hardware.balanceOfSystem.singlePhaseUpgradeEstCost || 40000) : 0;
+
+    return {
+      breakdown: {
+        panelsCost: Math.round(panelsCost),
+        inverterCost,
+        bosCost: Math.round(bosCost),
+        batteryCost,
+        netMeteringCost,
+        l3StructureCost: Math.round(sizingResult.actualDcKw * 1000 * l3ExtraPerWatt),
+        singlePhaseUpgradeFee
+      },
+      mountingType,
+      meterType,
+      capexMin,
+      capexMax,
+      avgCapex,
+      preBillPkr,
+      postBillPkr: postBill,
+      monthlySavings,
+      annualSavings,
+      paybackMonths,
+      paybackYears,
+      fiveYearNetSavings,
+      tenYearNetSavings
+    };
+  }
+
+  /**
+   * The "Slab-Breaker" Sweet-Spot Strategy:
+   * Calculates minimum viable solar (daytime-only, no battery) to drop user into base tariff bracket.
+   */
+  function calculateSweetSpot(monthlyUnits, discoKey = "kelectric", currentTotalCapex = null, options = {}) {
+    if (monthlyUnits <= 300) {
+      return null; // Already in a low/moderate bracket
+    }
+
+    const mountingType = options.mountingType || "standard";
+
+    // Target dropping consumption to 200 units (protected/low-slab threshold)
+    const unitsToShave = monthlyUnits - 200;
+    const sweetSpotSizing = calculateSolarSizing(unitsToShave);
+
+    // Turnkey capex for smaller daytime system (smaller 3kW/3.6kW inverter, no battery)
+    const sweetPanelsCost = sweetSpotSizing.actualDcKw * 1000 * data.hardware.panel.pricePerWattPkr;
+    const sweetInverterCost = data.hardware.inverters.hybrid_3kw || 165000;
+    const l3Extra = mountingType === "elevated" ? (data.hardware.balanceOfSystem.elevatedL3ExtraPerWatt || 14.0) : 0;
+    const sweetBosCost = sweetSpotSizing.actualDcKw * 1000 * (data.hardware.balanceOfSystem.bosCostPerWatt + l3Extra);
+    const sweetNetMetering = data.hardware.balanceOfSystem.netMeteringProcessCost;
+
+    const sweetCapexBase = sweetPanelsCost + sweetInverterCost + sweetBosCost + sweetNetMetering;
+    const sweetCapexMin = Math.round(sweetCapexBase * 0.94);
+    const sweetCapexMax = Math.round(sweetCapexBase * 1.06);
+    const sweetAvgCapex = Math.round((sweetCapexMin + sweetCapexMax) / 2);
+
+    const fullBill = calculateBillFromUnits(monthlyUnits, discoKey).totalBill;
+    const residualBill = calculateBillFromUnits(200, discoKey).totalBill;
+    const sweetSpotSavings = Math.max(0, fullBill - residualBill);
+
+    // Compare with full configured capex if provided
+    const baselineCapex = currentTotalCapex || (sweetAvgCapex * 2.2);
+    const capexSavingsPkr = Math.max(0, baselineCapex - sweetAvgCapex);
+    const capexReductionPercent = Math.min(85, Math.max(25, Math.round((capexSavingsPkr / baselineCapex) * 100)));
+
+    return {
+      currentUnits: monthlyUnits,
+      targetUnits: 200,
+      recommendedKw: sweetSpotSizing.actualDcKw,
+      panelCount: sweetSpotSizing.panelCount,
+      sweetCapexMin,
+      sweetCapexMax,
+      sweetAvgCapex,
+      capexSavingsPkr,
+      capexReductionPercent,
+      monthlySavings: sweetSpotSavings,
+      residualBill
+    };
+  }
+
+  /**
+   * Validates an installer quotation against wholesale equipment and labor benchmarks.
+   */
+  function validateInstallerQuote(quotedKw, quotedPricePkr, systemType = "hybrid") {
+    if (!quotedKw || quotedKw <= 0 || !quotedPricePkr || quotedPricePkr <= 0) {
+      return null;
+    }
+    const totalWatts = quotedKw * 1000;
+    const ratePerWatt = Math.round(quotedPricePkr / totalWatts);
+    const benchmarks = systemType === "ongrid"
+      ? (data.hardware.quoteBenchmarks ? data.hardware.quoteBenchmarks.onGridNoBattery : { minFair: 75, maxFair: 95, cutCornerThreshold: 65, overpricedThreshold: 110 })
+      : (data.hardware.quoteBenchmarks ? data.hardware.quoteBenchmarks.hybridWithBattery : { minFair: 105, maxFair: 135, cutCornerThreshold: 95, overpricedThreshold: 150 });
+
+    let status = "fair";
+    let statusClass = "text-emerald-900 bg-emerald-50 border-emerald-200";
+    let badgeText = "✓ Fair Market Pricing";
+    let title = `Rs. ${ratePerWatt.toLocaleString()} / Watt — Competitive Turnkey Rate`;
+    let description = "This quotation aligns with current wholesale Tier-1 component costs and healthy contractor engineering margins in Pakistan.";
+
+    if (ratePerWatt < benchmarks.cutCornerThreshold) {
+      status = "cheap";
+      statusClass = "text-amber-900 bg-amber-50 border-amber-200";
+      badgeText = "⚠️ Suspiciously Low (Quality Risk)";
+      title = `Rs. ${ratePerWatt.toLocaleString()} / Watt — High Cut-Corner Risk`;
+      description = "At this price, installers frequently cut corners using B-grade/refurbished panels, non-copper aluminum wiring, or 24V inverters without surge protection. Verify Tier-1 flash-test barcodes and written warranties.";
+    } else if (ratePerWatt > benchmarks.overpricedThreshold) {
+      const benchmarkAvg = (benchmarks.minFair + benchmarks.maxFair) / 2;
+      const excessPkr = Math.round((ratePerWatt - benchmarkAvg) * totalWatts);
+      status = "overpriced";
+      statusClass = "text-rose-900 bg-rose-50 border-rose-200";
+      badgeText = "⚠️ High Contractor Markup";
+      title = `Rs. ${ratePerWatt.toLocaleString()} / Watt — Quoted Above Benchmark`;
+      description = `This quote is approximately Rs. ${(excessPkr / 100000).toFixed(1)} Lakhs above standard market pricing for equivalent Tier-1 hardware. Request an itemized Bill of Materials (BOM) or seek a competing bid.`;
+    }
+
+    return {
+      quotedKw,
+      quotedPricePkr,
+      systemType,
+      ratePerWatt,
+      status,
+      statusClass,
+      badgeText,
+      title,
+      description
+    };
+  }
+
+  /**
+   * Calculates detailed appliance load breakdown (daily & monthly kWh, % share, estimated units and bill).
+   */
+  function calculateApplianceBreakdown(appliances = {}, discoKey = "kelectric") {
+    const defs = {
+      ac15: { name: "1.5-Ton Inverter AC", watts: 750, defaultHours: 8 },
+      ac10: { name: "1.0-Ton Inverter AC", watts: 550, defaultHours: 8 },
+      fans: { name: "Ceiling Fans", watts: 55, defaultHours: 14 },
+      fridge: { name: "Inverter Refrigerator", watts: 150, defaultHours: 24 },
+      freezer: { name: "Deep Freezer", watts: 180, defaultHours: 24 },
+      pump: { name: "1.0 HP Water Motor", watts: 1100, defaultHours: 1 },
+      lights: { name: "LED Lights & TV/Wi-Fi", watts: 150, defaultHours: 6 }
+    };
+
+    const items = [];
+    let totalDailyKwh = 0;
+
+    for (const key of Object.keys(defs)) {
+      const def = defs[key];
+      let count = 0;
+      let hours = def.defaultHours;
+
+      if (appliances[key] !== undefined) {
+        if (typeof appliances[key] === "object") {
+          count = appliances[key].count || 0;
+          hours = appliances[key].hours !== undefined ? appliances[key].hours : def.defaultHours;
+        } else {
+          count = parseInt(appliances[key], 10) || 0;
+        }
+      }
+
+      const dailyKwh = (count * def.watts * hours) / 1000;
+      const monthlyKwh = dailyKwh * 30;
+      totalDailyKwh += dailyKwh;
+
+      items.push({
+        key,
+        name: def.name,
+        count,
+        hours,
+        watts: def.watts,
+        dailyKwh: parseFloat(dailyKwh.toFixed(2)),
+        monthlyKwh: Math.round(monthlyKwh)
+      });
+    }
+
+    const totalMonthlyUnits = Math.round(totalDailyKwh * 30);
+
+    // Calculate percentage shares
+    items.forEach(item => {
+      item.percentOfTotal = totalMonthlyUnits > 0 ? Math.round((item.monthlyKwh / totalMonthlyUnits) * 100) : 0;
+    });
+
+    // Sort items by monthly consumption descending so top energy users appear first
+    items.sort((a, b) => b.monthlyKwh - a.monthlyKwh);
+
+    // Estimate bill from units
+    const billRes = calculateBillFromUnits(totalMonthlyUnits, discoKey);
+
+    return {
+      items,
+      totalDailyKwh: parseFloat(totalDailyKwh.toFixed(2)),
+      totalMonthlyUnits,
+      estimatedBillPkr: billRes.totalBill,
+      billDetails: billRes
+    };
+  }
+
+  return {
+    calculateBillFromUnits,
+    estimateUnitsFromBill,
+    reverseUnitsFromBill: estimateUnitsFromBill,
+    calculateSolarSizing,
+    calculateNightBattery,
+    calculateFinancials,
+    calculateSweetSpot,
+    validateInstallerQuote,
+    calculateApplianceBreakdown
+  };
+})();
+
+// Explicitly bind to window for cross-browser / iframe compatibility
+if (typeof window !== "undefined") {
+  window.CalculatorEngine = CalculatorEngine;
+}
+
+// Export for browser or node test environments
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = CalculatorEngine;
+}
+  </script>
   <script>
     (function() {
       const citySelect = document.getElementById("widgetCitySelect");
@@ -113,33 +1008,55 @@
 
       function update() {
         try {
-          const city = citySelect.value || "lahore";
-          const bill = parseInt(billSlider.value, 10) || 45000;
-          billDisplay.textContent = "Rs. " + bill.toLocaleString();
+          const city = (citySelect && citySelect.value) ? citySelect.value : "lahore";
+          const bill = (billSlider && billSlider.value) ? parseInt(billSlider.value, 10) : 45000;
+          if (billDisplay) {
+            billDisplay.textContent = "Rs. " + bill.toLocaleString();
+          }
 
-          const cityInfo = TARIFF_DATA.cities[city] || TARIFF_DATA.cities.lahore;
+          const tariff = (typeof TARIFF_DATA !== "undefined") ? TARIFF_DATA : (window.TARIFF_DATA || {});
+          const engine = (typeof CalculatorEngine !== "undefined") ? CalculatorEngine : window.CalculatorEngine;
+
+          const cityInfo = (tariff && tariff.cities && tariff.cities[city]) 
+            ? tariff.cities[city] 
+            : { disco: "lesco" };
           const discoKey = cityInfo.disco || "lesco";
 
-          const units = CalculatorEngine.estimateUnitsFromBill(bill, discoKey);
-          const sizing = CalculatorEngine.calculateSolarSizing(units, city);
-          const financials = CalculatorEngine.calculateFinancials(sizing, null, bill, discoKey);
+          if (engine) {
+            const units = engine.estimateUnitsFromBill(bill, discoKey);
+            const sizing = engine.calculateSolarSizing(units, city);
+            const financials = engine.calculateFinancials(sizing, null, bill, discoKey);
 
-          outSolarKw.textContent = sizing.actualDcKw + " kW";
-          outPanels.textContent = sizing.panelCount + "x 580W Panels";
-          outCapex.textContent = "Rs. " + (financials.capexMin / 100000).toFixed(1) + "L – " + (financials.capexMax / 100000).toFixed(1) + "L";
-          outSavings.textContent = "Rs. " + financials.monthlySavings.toLocaleString() + "/mo";
-          outPayback.textContent = "~" + financials.paybackYears + " Years";
+            if (outSolarKw) outSolarKw.textContent = sizing.actualDcKw + " kW";
+            if (outPanels) outPanels.textContent = sizing.panelCount + "x 580W Panels";
+            if (outCapex) outCapex.textContent = "Rs. " + (financials.capexMin / 100000).toFixed(1) + "L – " + (financials.capexMax / 100000).toFixed(1) + "L";
+            if (outSavings) outSavings.textContent = "Rs. " + financials.monthlySavings.toLocaleString() + "/mo";
+            if (outPayback) outPayback.textContent = "~" + financials.paybackYears + " Years";
 
-          fullAuditLink.href = "https://solaraudit.online/?city=" + city + "&bill=" + bill;
+            if (fullAuditLink) {
+              fullAuditLink.href = "https://solaraudit.online/?city=" + city + "&bill=" + bill;
+            }
+          }
         } catch (err) {
           console.error("Widget calculation error:", err);
         }
       }
 
-      citySelect.addEventListener("change", update);
-      billSlider.addEventListener("input", update);
-      update();
+      if (citySelect) {
+        citySelect.addEventListener("change", update);
+        citySelect.addEventListener("input", update);
+      }
+      if (billSlider) {
+        billSlider.addEventListener("input", update);
+        billSlider.addEventListener("change", update);
+      }
+      // Run initial calculation immediately on load
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", update);
+      } else {
+        update();
+      }
     })();
   </script>
 </body>
-</html>
+</html>
