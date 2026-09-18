@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const initialBill = parseInt(urlParams.get("bill") || bodyData.presetBill || "48000", 10);
   const initialMode = urlParams.get("mode") || bodyData.presetMode || "bill";
   const initialNightAc = bodyData.presetNightAc !== undefined ? bodyData.presetNightAc === "true" : true;
+  const initialNightAcCount = parseInt(urlParams.get("acCount") || bodyData.presetNightAcCount || "1", 10);
 
   // App State
   const state = {
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       lights: 1
     },
     nightAcEnabled: initialNightAc,
-    nightAcCount: 1,
+    nightAcCount: initialNightAcCount,
     nightHours: 8,
     batteryPreference: "lithium", // "lithium" or "tubular"
     meterType: "three_phase", // "three_phase" or "single_phase"
@@ -529,6 +530,10 @@ Contractor Quote Validator: https://solaraudit.online/solar-quote-validator.html
     } else {
       nightBatteryOptions.classList.add("opacity-40", "pointer-events-none");
     }
+  }
+  if (nightAcCountSlider && nightAcCountDisplay) {
+    nightAcCountSlider.value = state.nightAcCount;
+    nightAcCountDisplay.textContent = `${state.nightAcCount} AC${state.nightAcCount > 1 ? "s" : ""}`;
   }
 
   // Initial Calculation Run

@@ -53,9 +53,25 @@
           Copy and paste this snippet into your WordPress post, Webflow page, or HTML template:
         </p>
 
+        <!-- Customization Controls -->
+        <div class="bg-white p-3.5 rounded-lg border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between text-xs">
+            <label for="snippetCity" class="font-semibold text-slate-800">Pre-selected City:</label>
+            <select id="snippetCity" class="bg-slate-50 border border-slate-300 rounded px-2 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900 cursor-pointer">
+              <option value="lahore" selected>Lahore (LESCO)</option>
+              <option value="karachi">Karachi (K-Electric)</option>
+              <option value="islamabad">Islamabad / RWP (IESCO)</option>
+              <option value="multan">Multan (MEPCO)</option>
+              <option value="faisalabad">Faisalabad (FESCO)</option>
+              <option value="gujranwala">Gujranwala (GEPCO)</option>
+              <option value="peshawar">Peshawar (PESCO)</option>
+            </select>
+          </div>
+        </div>
+
         <div class="relative bg-slate-900 rounded-lg p-4 text-xs font-mono text-emerald-400 overflow-x-auto shadow-inner">
           <pre id="embedCodeSnippet">&lt;iframe 
-  src="https://solaraudit.online/widget.html" 
+  src="https://solaraudit.online/widget.html?v=2026.3&amp;city=lahore" 
   width="100%" 
   height="490" 
   frameborder="0" 
@@ -64,7 +80,7 @@
 &lt;/iframe&gt;</pre>
         </div>
 
-        <button id="copyEmbedBtn" class="w-full py-2.5 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm">
+        <button id="copyEmbedBtn" class="w-full py-2.5 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer">
           <span>Copy Embed Code to Clipboard</span>
         </button>
         <div id="copyEmbedNotice" class="hidden text-center text-xs text-emerald-700 font-medium">
@@ -73,11 +89,11 @@
 
         <div class="bg-white p-4 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
           <div class="font-bold text-slate-800">Why Embed SOLARAUDIT?</div>
-          <ul class="list-disc list-inside space-y-1 text-slate-500">
-            <li>Zero latency: calculations run 100% client-side in visitor's browser.</li>
-            <li>Always accurate: automatically reflects active NEPRA & DISCO progressive slabs.</li>
-            <li>Mobile responsive: adapts automatically to any column or sidebar width.</li>
-            <li>No ads or tracking in the widget frame.</li>
+          <ul class="list-disc list-inside space-y-1.5 text-slate-500">
+            <li><strong class="text-slate-700">100% Client-Side Engine:</strong> Embedded tariff logic runs instantly in the user's browser with zero backend server lag (<50ms).</li>
+            <li><strong class="text-slate-700">Zero Maintenance:</strong> Automatically incorporates active NEPRA & DISCO progressive slabs without requiring API updates on your end.</li>
+            <li><strong class="text-slate-700">Boosts Time-on-Page:</strong> Interactive sliders increase visitor engagement and dwell time, directly benefiting your SEO.</li>
+            <li><strong class="text-slate-700">Free Forever:</strong> Zero subscription fees, zero tracking cookies, and 100% ad-free frame.</li>
           </ul>
         </div>
       </div>
@@ -92,8 +108,22 @@
   </footer>
 
   <script>
+    const citySelect = document.getElementById("snippetCity");
+    const snippetPre = document.getElementById("embedCodeSnippet");
+    const previewIframe = document.querySelector("iframe");
+
+    function updateSnippet() {
+      const city = citySelect.value;
+      snippetPre.innerText = `<iframe \n  src="https://solaraudit.online/widget.html?v=2026.3&city=${city}" \n  width="100%" \n  height="490" \n  frameborder="0" \n  style="border-radius:12px; border:1px solid #e2e8f0; max-width:440px;"\n  title="Pakistan Solar Sizing Calculator">\n</iframe>`;
+      if (previewIframe) {
+        previewIframe.src = `/widget.html?v=2026.3&city=${city}`;
+      }
+    }
+
+    citySelect.addEventListener("change", updateSnippet);
+
     document.getElementById("copyEmbedBtn").addEventListener("click", () => {
-      const code = document.getElementById("embedCodeSnippet").innerText;
+      const code = snippetPre.innerText;
       navigator.clipboard.writeText(code).then(() => {
         const notice = document.getElementById("copyEmbedNotice");
         notice.classList.remove("hidden");

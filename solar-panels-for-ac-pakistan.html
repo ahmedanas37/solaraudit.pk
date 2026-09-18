@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <title>How Many Solar Panels for Inverter AC in Pakistan? (1, 2, 3 & 4 ACs) — SOLARAUDIT.ONLINE</title>
+  <meta name="description" content="Exact mathematical sizing: how many 580W solar panels and lithium batteries are needed to run 1.0-Ton, 1.5-Ton, and 2.0-Ton inverter ACs day and night in Pakistan.">
+  <meta name="keywords" content="solar calculator pakistan, k electric bill calculator 2026, nepra tariff slabs, solar payback period pakistan, lithium battery for ac, 5kw solar system price in pakistan">
+  <link rel="canonical" href="https://solaraudit.online/solar-panels-for-ac-pakistan.html">
+
+  <!-- Open Graph & WhatsApp Social Card -->
+  <meta property="og:title" content="How Many Solar Panels for Inverter AC in Pakistan? (1, 2, 3 & 4 ACs) — SOLARAUDIT.ONLINE">
+  <meta property="og:description" content="Independent solar sizing, 580W panel count, night AC battery storage, and contractor quote validator for Pakistani homeowners.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://solaraudit.online/solar-panels-for-ac-pakistan.html">
+  <meta property="og:image" content="https://solaraudit.online/og-image.png">
+  <meta property="og:image:secure_url" content="https://solaraudit.online/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="SOLARAUDIT.ONLINE — Pakistan Solar Sizing & Bill Audit Engine">
+  <meta property="og:locale" content="en_PK">
+  <meta property="og:site_name" content="SOLARAUDIT.ONLINE">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SOLARAUDIT.ONLINE — 2026 Pakistan Solar Sizing & Bill Calculator">
+  <meta name="twitter:description" content="Independent solar sizing, 580W panel count, night AC battery storage, and contractor quotation validator for Pakistani homes.">
+  <meta name="twitter:image" content="https://solaraudit.online/og-image.png">
+  <meta name="twitter:image:alt" content="SOLARAUDIT.ONLINE — Pakistan Solar Sizing & Bill Audit Engine">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jsPDF for Client-side PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Clean Utility Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Schema.org Structured Data (WebApplication, FAQPage, HowTo) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://solaraudit.online/#webapp",
+        "name": "SOLARAUDIT.ONLINE Solar Sizing & Bill Audit Engine",
+        "url": "https://solaraudit.online/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "PKR"
+        },
+        "description": "Independent mathematical audit tool for residential and commercial solar installations in Pakistan according to NEPRA and K-Electric 2026 tariff determinations."
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://solaraudit.online/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How many units does 1 kW solar produce per day in Pakistan?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Across major Pakistani urban centers (Karachi, Lahore, Islamabad, Multan), 1 kW of installed solar capacity yields approximately 3.8 to 4.2 usable kilowatt-hours (units) per day after applying a realistic 0.78 system derating factor for high summer temperatures and airborne dust deposition."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I install solar net-metering on a single-phase electricity meter in Pakistan?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. NEPRA distributed generation regulations strictly require a 3-phase bidirectional green meter for net-metering. Single-phase consumers must apply to their local DISCO (such as K-Electric, LESCO, IESCO, or MEPCO) for a Phase Conversion and Sanctioned Load Extension before their net-metering application can be processed."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is a fair price per watt for residential solar systems in Pakistan in 2026?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Based on current wholesale hardware benchmarks, turnkey on-grid residential solar installations typically range between Rs. 75 and Rs. 95 per watt. Turnkey hybrid installations (including 48V LiFePO4 battery storage) range between Rs. 105 and Rs. 135 per watt. Quotes exceeding Rs. 150/W indicate excessive contractor markup, while quotes under Rs. 95/W for hybrid systems indicate compromised hardware quality."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the 2026 NEPRA Net-Billing policy affect solar payback periods?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Under NEPRA's Net-Billing regime, exported units are credited at the National Average Energy Purchase Price (NAEPP), while imported units are billed at progressive retail slab tariffs. Because approximately 70% to 75% of residential solar generation is consumed directly during daylight hours (avoiding high peak retail tariffs), typical payback periods remain robust at 2.0 to 2.5 years."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which battery is recommended for running an inverter AC overnight on solar?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A 48V Lithium Iron Phosphate (LiFePO4) battery bank (minimum 100Ah to 200Ah usable capacity) is strongly recommended. Deep-cycle lead-acid tubular batteries only offer 50% usable depth of discharge and quickly degrade under inductive AC compressor loads within 12 to 18 months, whereas LiFePO4 cells deliver 4,000+ charge cycles at 85% depth of discharge."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://solaraudit.online/#howto",
+        "name": "How to Verify Your Contractor Solar Quotation in Pakistan",
+        "description": "Step-by-step guide to verifying whether a contractor's solar proposal contains fair market pricing or overcharges.",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "Extract Quoted Capacity and Total Price",
+            "text": "Identify the total system DC capacity in kilowatts (kW) and the turnkey price quoted in Pakistani Rupees."
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "Calculate Price Per Watt",
+            "text": "Divide total quoted price in PKR by total wattage (e.g., Rs. 950,000 divided by 6,000 Watts equals Rs. 158 per Watt)."
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "Compare Against Wholesale Benchmarks",
+            "text": "Check against standard benchmarks: On-grid should range between Rs. 75-95/W, while Hybrid with battery should range between Rs. 105-135/W."
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen" data-preset-city="lahore" data-preset-bill="68000" data-preset-mode="appliances" data-preset-night-ac-count="2">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="/" class="font-bold text-base tracking-tight text-slate-900 flex items-center gap-2">
+          <span class="w-7 h-7 rounded bg-slate-900 text-white flex items-center justify-center text-xs font-bold">SA</span>
+          <span>SOLARAUDIT<span class="text-slate-500 font-normal">.ONLINE</span></span>
+        </a>
+        <span class="hidden sm:inline-block text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+          2026 Tariffs
+        </span>
+      </div>
+
+      <!-- City & DISCO Selector -->
+      <div class="flex items-center space-x-2">
+        <label for="citySelect" class="text-xs text-slate-600 hidden sm:inline">Region:</label>
+        <select id="citySelect" class="bg-white border border-slate-300 text-xs sm:text-sm text-slate-800 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-slate-900 cursor-pointer font-medium">
+          <option value="karachi" selected>Karachi (K-Electric)</option>
+          <option value="lahore">Lahore (LESCO)</option>
+          <option value="islamabad">Islamabad / RWP (IESCO)</option>
+          <option value="multan">Multan (MEPCO)</option>
+          <option value="faisalabad">Faisalabad (FESCO)</option>
+          <option value="gujranwala">Gujranwala / Sialkot (GEPCO)</option>
+          <option value="peshawar">Peshawar (PESCO)</option>
+          <option value="quetta">Quetta / Balochistan (QESCO)</option>
+          <option value="sukkur">Sukkur / Upper Sindh (SEPCO)</option>
+          <option value="hyderabad">Hyderabad / Lower Sindh (HESCO)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Page Introduction -->
+    <div class="mb-4">
+      <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">How Many Solar Panels to Run Inverter AC in Pakistan
+        Solar System &amp; Electricity Bill Calculator
+      </h1>
+      <p class="text-sm text-slate-600 mt-1 max-w-2xl">Calculate exact solar panel count, inverter capacity, and night battery backup for 1.0-Ton, 1.5-Ton, and 2.0-Ton inverter air conditioners.</p>
+    </div>
+
+    <!-- City Climate & Solar Irradiance Pill -->
+    <div id="cityIrradiancePill" class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-slate-700 bg-white border border-slate-200 px-3.5 py-2 rounded-lg mb-6 shadow-2xs">
+      <span class="inline-flex items-center gap-1.5 font-bold text-slate-900">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span id="cityIrradiancePsh">5.4 Peak Sun Hours / Day</span>
+      </span>
+      <span class="text-slate-300 hidden sm:inline">•</span>
+      <span id="cityIrradianceClimate" class="text-slate-600">Coastal haze • High year-round sun</span>
+      <span class="text-slate-300 hidden md:inline">•</span>
+      <span class="text-slate-400 text-[11px] hidden md:inline">0.78 summer derating (temp &amp; dust) factored</span>
+    </div>
+
+    <!-- Mode Selector -->
+    <div class="inline-flex bg-slate-200/80 p-1 rounded-lg mb-6 border border-slate-200">
+      <button id="modeBillBtn" class="py-1.5 px-3.5 rounded-md bg-white text-slate-900 font-semibold shadow-sm border border-slate-200 text-xs transition-all">
+        By Monthly Bill
+      </button>
+      <button id="modeApplianceBtn" class="py-1.5 px-3.5 rounded-md text-slate-600 hover:text-slate-900 text-xs transition-all">
+        By Appliances
+      </button>
+    </div>
+
+    <!-- Two-Column Tool Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT COLUMN: INPUTS (5 Cols) -->
+      <div class="lg:col-span-5 space-y-5">
+
+        <!-- Input Box 1: Electricity Consumption -->
+        <div class="tool-card p-5">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Electricity Usage</h2>
+
+          <!-- Bill Slider Mode -->
+          <div id="billInputSection" class="space-y-3">
+            <div class="flex justify-between items-baseline">
+              <label for="billSlider" class="text-xs text-slate-700">Average Monthly Bill</label>
+              <span id="billValueDisplay" class="text-lg font-bold font-mono text-slate-900">Rs. 48,000</span>
+            </div>
+
+            <input type="range" id="billSlider" min="8000" max="500000" step="2500" value="48000">
+
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span>Rs. 8k</span>
+              <span>Rs. 250k</span>
+              <span>Rs. 500k</span>
+            </div>
+
+            <div class="p-2.5 rounded bg-slate-50 border border-slate-200 flex justify-between items-center text-xs text-slate-600">
+              <span>Estimated Consumption:</span>
+              <span id="outEstimatedUnits" class="font-semibold text-slate-900">~780 units</span>
+            </div>
+
+            <!-- Shortcut to Appliance Mode -->
+            <div class="pt-0.5 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Don't have your bill handy?</span>
+              <button id="shortcutToApplianceBtn" type="button" class="text-emerald-700 hover:text-emerald-800 font-semibold hover:underline cursor-pointer">
+                Estimate by appliances →
+              </button>
+            </div>
+          </div>
+
+          <!-- Appliance Mode (Hidden by default) -->
+          <div id="applianceInputSection" class="hidden space-y-2.5">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-xs text-slate-500">Select your typical summer appliance load:</p>
+              <button id="shortcutBackToBillBtn" type="button" class="text-[11px] text-emerald-700 hover:underline font-semibold cursor-pointer">
+                ← Back to Bill
+              </button>
+            </div>
+
+            <!-- 1.5-Ton Inverter AC -->
+            <div class="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-semibold text-slate-900">1.5-Ton Inverter AC</div>
+                  <div class="text-[11px] text-slate-500">750W avg running @ 26°C</div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button id="dec_ac15" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">-</button>
+                  <span id="val_ac15" class="w-5 text-center font-semibold text-xs text-slate-900">2</span>
+                  <button id="inc_ac15" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">+</button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200/60">
+                <span>Daily runtime:</span>
+                <div class="inline-flex gap-1" id="hoursGroup_ac15">
+                  <button type="button" data-hours="6" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:border-slate-400">6 hrs</button>
+                  <button type="button" data-hours="8" class="px-2 py-0.5 rounded border border-slate-900 bg-slate-900 text-white font-medium">8 hrs</button>
+                  <button type="button" data-hours="12" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:border-slate-400">12 hrs</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 1.0-Ton Inverter AC -->
+            <div class="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-semibold text-slate-900">1.0-Ton Inverter AC</div>
+                  <div class="text-[11px] text-slate-500">550W avg running @ 26°C</div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button id="dec_ac10" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">-</button>
+                  <span id="val_ac10" class="w-5 text-center font-semibold text-xs text-slate-900">0</span>
+                  <button id="inc_ac10" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">+</button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200/60">
+                <span>Daily runtime:</span>
+                <div class="inline-flex gap-1" id="hoursGroup_ac10">
+                  <button type="button" data-hours="6" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:border-slate-400">6 hrs</button>
+                  <button type="button" data-hours="8" class="px-2 py-0.5 rounded border border-slate-900 bg-slate-900 text-white font-medium">8 hrs</button>
+                  <button type="button" data-hours="12" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:border-slate-400">12 hrs</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ceiling Fans -->
+            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+              <div>
+                <div class="text-xs font-medium text-slate-900">Ceiling Fans</div>
+                <div class="text-[11px] text-slate-500">55W (14 hrs/day)</div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button id="dec_fans" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">-</button>
+                <span id="val_fans" class="w-5 text-center font-semibold text-xs text-slate-900">5</span>
+                <button id="inc_fans" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">+</button>
+              </div>
+            </div>
+
+            <!-- Inverter Refrigerator -->
+            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+              <div>
+                <div class="text-xs font-medium text-slate-900">Inverter Refrigerator</div>
+                <div class="text-[11px] text-slate-500">150W continuous</div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button id="dec_fridge" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">-</button>
+                <span id="val_fridge" class="w-5 text-center font-semibold text-xs text-slate-900">1</span>
+                <button id="inc_fridge" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">+</button>
+              </div>
+            </div>
+
+            <!-- Deep Freezer -->
+            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+              <div>
+                <div class="text-xs font-medium text-slate-900">Chest Deep Freezer</div>
+                <div class="text-[11px] text-slate-500">180W continuous</div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button id="dec_freezer" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">-</button>
+                <span id="val_freezer" class="w-5 text-center font-semibold text-xs text-slate-900">0</span>
+                <button id="inc_freezer" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">+</button>
+              </div>
+            </div>
+
+            <!-- Water Pump -->
+            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+              <div>
+                <div class="text-xs font-medium text-slate-900">1.0 HP Water Pump</div>
+                <div class="text-[11px] text-slate-500">1100W (1 hr/day)</div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button id="dec_pump" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">-</button>
+                <span id="val_pump" class="w-5 text-center font-semibold text-xs text-slate-900">1</span>
+                <button id="inc_pump" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">+</button>
+              </div>
+            </div>
+
+            <!-- LED Lights & TV/Wi-Fi -->
+            <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200">
+              <div>
+                <div class="text-xs font-medium text-slate-900">LED Lights &amp; TV/Wi-Fi</div>
+                <div class="text-[11px] text-slate-500">150W (6 hrs/day)</div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button id="dec_lights" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">-</button>
+                <span id="val_lights" class="w-5 text-center font-semibold text-xs text-slate-900">1</span>
+                <button id="inc_lights" type="button" class="w-6 h-6 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold text-xs">+</button>
+              </div>
+            </div>
+
+            <!-- Live Appliance Breakdown Card -->
+            <div id="applianceBreakdownSummary" class="mt-3 p-3 rounded-lg bg-slate-100 border border-slate-200 text-xs space-y-1.5">
+              <div class="flex justify-between items-center font-semibold text-slate-900">
+                <span>Calculated Monthly Load:</span>
+                <span id="applianceTotalUnitsDisplay" class="font-mono text-sm text-emerald-800 font-bold">~644 Units</span>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-500">
+                <span>Estimated Monthly Bill:</span>
+                <span id="applianceTotalBillDisplay" class="font-mono font-medium text-slate-800">~Rs. 36,500</span>
+              </div>
+              <div class="pt-1.5 border-t border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
+                <span>Largest Power Consumer:</span>
+                <span id="applianceDominantText" class="font-semibold text-slate-900">ACs (56% of total)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meter Connection Type -->
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-medium text-slate-800">Grid Meter Type</div>
+              <div class="text-[10px] text-slate-500">NEPRA net-metering rule</div>
+            </div>
+            <div class="inline-flex bg-slate-100 p-0.5 rounded border border-slate-200 text-xs">
+              <button id="meterThreePhaseBtn" type="button" class="py-1 px-3 rounded font-medium text-slate-900 bg-white shadow-xs transition-all">3-Phase</button>
+              <button id="meterSinglePhaseBtn" type="button" class="py-1 px-3 rounded font-medium text-slate-500 hover:text-slate-800 transition-all">Single-Phase</button>
+            </div>
+          </div>
+
+          <!-- Single-Phase Advisory Notice (hidden by default) -->
+          <div id="singlePhaseNotice" class="hidden mt-2.5 p-2.5 rounded-md bg-amber-50/90 border border-amber-200 text-[11px] text-amber-900 leading-snug">
+            <span class="font-bold">⚠️ DISCO 3-Phase Upgrade Required:</span> NEPRA regulations prohibit green net-metering on single-phase meters. If you plan to export solar units, budget ~Rs. 35,000–50,000 for your DISCO's 3-Phase conversion demand notice.
+          </div>
+        </div>
+
+        <!-- Input Box 2: Night AC Battery Requirement -->
+        <div class="tool-card p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Night AC Battery Storage</h2>
+              <p class="text-[11px] text-slate-500">Calculate battery bank to run AC after sunset</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="nightAcToggle" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
+            </label>
+          </div>
+
+          <div id="nightBatteryOptions" class="space-y-3 pt-1 transition-opacity">
+            <!-- AC Count Slider -->
+            <div>
+              <div class="flex justify-between text-xs text-slate-700 mb-1">
+                <span>Inverter ACs overnight:</span>
+                <span id="nightAcCountDisplay" class="font-semibold text-slate-900">1 AC</span>
+              </div>
+              <input type="range" id="nightAcCountSlider" min="1" max="8" step="1" value="1">
+            </div>
+
+            <!-- Run Hours Slider -->
+            <div>
+              <div class="flex justify-between text-xs text-slate-700 mb-1">
+                <span>Backup duration:</span>
+                <span id="nightHoursDisplay" class="font-semibold text-slate-900">8 Hours</span>
+              </div>
+              <input type="range" id="nightHoursSlider" min="4" max="12" step="1" value="8">
+            </div>
+
+            <!-- Battery Type Selection -->
+            <div>
+              <label class="text-xs text-slate-600 block mb-1.5">Battery Type:</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button id="batteryTypeLithium" class="p-3 rounded-lg border-2 border-slate-900 bg-slate-50 text-slate-900 text-left transition-all">
+                  <div class="text-xs font-bold">Lithium (LiFePO4)</div>
+                  <div class="text-[11px] text-slate-500 mt-0.5">85% usable • ~10-yr life</div>
+                </button>
+                <button id="batteryTypeTubular" class="p-3 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 text-left transition-all">
+                  <div class="text-xs font-bold">Tubular Lead-Acid</div>
+                  <div class="text-[11px] text-slate-500 mt-0.5">50% usable • ~2.5-yr life</div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Box 3: Rooftop Structure Type -->
+        <div class="tool-card p-5 space-y-3">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Rooftop Structure Type</h2>
+            <p class="text-[11px] text-slate-500">Determines roof usability & mounting steel gauge</p>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="structStandardBtn" type="button" class="p-3 rounded-lg border-2 border-slate-900 bg-slate-50 text-slate-900 text-left transition-all">
+              <div class="text-xs font-bold">Standard L2 Frame</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">Low-mount (2–3 ft) • Lowest cost</div>
+            </button>
+            <button id="structElevatedBtn" type="button" class="p-3 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 text-left transition-all">
+              <div class="text-xs font-bold">Elevated L3 Pergola</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">Walkable (8–10 ft) • Usable roof</div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: AUDIT RESULTS (7 Cols) -->
+      <div class="lg:col-span-7 space-y-4">
+
+        <!-- Primary Output Header Card -->
+        <div class="tool-card p-5 bg-white border border-slate-200">
+          <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+            <div>
+              <div class="text-xs text-slate-500 font-medium">Recommended System Capacity</div>
+              <div id="outDcKw" class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0.5 font-mono">
+                6.38 kW
+              </div>
+            </div>
+            <div class="text-left sm:text-right">
+              <div class="text-xs text-slate-500 font-medium">Solar Array</div>
+              <div id="outPanelCount" class="text-sm font-semibold text-slate-800 mt-0.5">
+                11 panels (580W N-Type)
+              </div>
+            </div>
+          </div>
+
+          <!-- Specifications Row -->
+          <div class="grid grid-cols-2 gap-4 pt-4 mt-4 border-t border-slate-100">
+            <div>
+              <div class="text-[11px] text-slate-500">Inverter Required</div>
+              <div id="outInverter" class="text-sm font-semibold text-slate-900 mt-0.5">6 kW Hybrid (48V)</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-500">Rooftop Area Needed</div>
+              <div class="text-sm font-semibold text-slate-900 mt-0.5">
+                <span id="outRoofSpace">308 sq ft</span> (<span id="outRoofMarla">~1.4 Marla</span>)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Battery Storage Card -->
+        <div class="tool-card p-4">
+          <div class="text-xs text-slate-500 font-medium">Recommended Night Battery Bank</div>
+          <div id="outBatterySpec" class="text-sm font-bold text-slate-900 mt-1 font-mono">
+            2x 5.12 kWh LiFePO4 (51.2V 100Ah)
+          </div>
+          <div id="outBatteryNote" class="text-xs text-slate-600 mt-1.5 leading-normal">
+            Optimal for continuous AC loads. 4,000+ deep cycle lifespan (approx. 10 years).
+          </div>
+        </div>
+
+        <!-- Financial Summary Card -->
+        <div class="tool-card p-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Cost & Savings Estimate</h3>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-3.5 rounded-lg bg-slate-50 border border-slate-200/80">
+            <div>
+              <div class="text-[11px] text-slate-500">Estimated Total Cost</div>
+              <div id="outCapexRange" class="text-sm font-bold text-slate-900 mt-0.5">Rs. 12.5L – 14.1L</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-500">Monthly Savings</div>
+              <div id="outMonthlySavings" class="text-sm font-bold text-emerald-800 mt-0.5">Rs. 48,000 / mo</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-500">Payback Period</div>
+              <div id="outPaybackPeriod" class="text-sm font-bold text-slate-900 mt-0.5">2.3 Years</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-500">5-Year Net Benefit</div>
+              <div id="out5YearProfit" class="text-sm font-bold text-emerald-800 mt-0.5">Rs. 14.7 Lakhs</div>
+            </div>
+          </div>
+          <div class="mt-3 p-2.5 rounded bg-slate-50 border border-slate-200/80 flex items-start gap-2 text-[11px] text-slate-600 leading-normal">
+            <span class="text-slate-400 mt-0.5">🛡️</span>
+            <span><strong>NEPRA Policy Resilience:</strong> ~75% of your generated solar units directly offset high daytime grid tariffs. Even if grid export buyback rates are revised downwards by NEPRA, your payback horizon remains protected within 2.0 to 2.5 years.</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-2">Estimates reflect turnkey market rates in Pakistan including Tier-1 panels, hybrid inverter, wiring, and selected mounting frame.</p>
+        </div>
+
+        <!-- Slab-Breaker Strategy Box -->
+        <div id="sweetSpotContainer" class="p-4 rounded-lg bg-blue-50/70 border border-blue-200 text-xs text-blue-950 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-blue-950 uppercase tracking-wider text-[11px]">Budget Alternative: Daytime "Slab-Breaker" Setup</span>
+            <span id="sweetSpotCapexSave" class="px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-semibold text-[10px]">60% Lower Capex</span>
+          </div>
+          <p class="text-blue-900/90 leading-relaxed">
+            If full hybrid storage exceeds your budget, install a smaller daytime system without night batteries:
+          </p>
+          <div class="grid grid-cols-3 gap-2 pt-0.5 font-mono">
+            <div class="p-2 rounded bg-white/80 border border-blue-200/80">
+              <div class="text-[10px] text-blue-600 font-sans">Array Sizing</div>
+              <div class="text-xs font-bold text-blue-950 mt-0.5"><span id="sweetSpotKw">3.5 kW</span> (<span id="sweetSpotPanels">6 panels</span>)</div>
+            </div>
+            <div class="p-2 rounded bg-white/80 border border-blue-200/80">
+              <div class="text-[10px] text-blue-600 font-sans">Estimated Cost</div>
+              <div id="sweetSpotCost" class="text-xs font-bold text-blue-950 mt-0.5">Rs. 4.1L – 4.6L</div>
+            </div>
+            <div class="p-2 rounded bg-white/80 border border-blue-200/80">
+              <div class="text-[10px] text-blue-600 font-sans">Monthly Savings</div>
+              <div id="sweetSpotBillSave" class="text-xs font-bold text-emerald-800 mt-0.5">Rs. 29,170 / mo</div>
+            </div>
+          </div>
+          <p class="text-[11px] text-blue-700/90 leading-normal">
+            *Skips expensive batteries. Runs your household and ACs on solar during the day, dropping your grid consumption below 200 units to qualify for base tariff slabs.
+          </p>
+        </div>
+
+        <!-- Contractor Quotation Validator ("BS Detector") -->
+        <div class="tool-card p-5 border border-slate-200 bg-white space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Contractor Quotation Validator</h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Have a quote from a local installer? Verify if you're being overcharged.</p>
+            </div>
+            <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">BS DETECTOR</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div>
+              <label for="quoteKwInput" class="text-[11px] text-slate-600 block mb-1">Quoted Size (kW)</label>
+              <input type="number" id="quoteKwInput" step="0.5" min="1" max="50" placeholder="e.g. 6.0" class="w-full text-xs font-mono p-2 rounded border border-slate-300 focus:border-slate-900 focus:outline-none bg-slate-50/50">
+            </div>
+            <div>
+              <label for="quotePriceInput" class="text-[11px] text-slate-600 block mb-1">Quoted Price (PKR)</label>
+              <input type="number" id="quotePriceInput" step="10000" min="50000" placeholder="e.g. 950000" class="w-full text-xs font-mono p-2 rounded border border-slate-300 focus:border-slate-900 focus:outline-none bg-slate-50/50">
+            </div>
+            <div>
+              <label for="quoteSystemType" class="text-[11px] text-slate-600 block mb-1">System Scope</label>
+              <select id="quoteSystemType" class="w-full text-xs p-2 rounded border border-slate-300 focus:border-slate-900 focus:outline-none bg-white">
+                <option value="hybrid">Hybrid + Battery Bank</option>
+                <option value="ongrid">On-Grid Only (No Battery)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Validator Feedback Box (Hidden by default) -->
+          <div id="quoteValidatorResult" class="hidden p-3 rounded-lg border text-xs space-y-1 transition-all">
+            <div class="flex items-center justify-between">
+              <span id="quoteResultBadge" class="font-bold text-xs"></span>
+              <span id="quoteRateDisplay" class="font-mono text-[11px] text-slate-600"></span>
+            </div>
+            <p id="quoteResultDesc" class="text-[11px] leading-relaxed"></p>
+          </div>
+        </div>
+
+        <!-- Action Buttons Row 1: WhatsApp & PDF -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button id="shareWhatsAppBtn" class="flex-1 py-2.5 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.92-9.91-9.92zm0 18.15c-1.47 0-2.92-.39-4.18-1.15l-.3-.18-3.11.82.83-3.04-.2-.31c-.83-1.33-1.27-2.88-1.27-4.49 0-4.54 3.7-8.24 8.24-8.24 4.54 0 8.24 3.7 8.24 8.24 0 4.54-3.7 8.25-8.25 8.25zm4.52-6.17c-.25-.12-1.47-.72-1.69-.81-.23-.09-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.12.17 1.77 2.71 4.3 3.8 2.52 1.09 2.52.73 2.98.69.45-.05 1.47-.6 1.68-1.18.21-.59.21-1.09.15-1.19-.06-.1-.22-.16-.47-.28z"/></svg>
+            <span>Share Audit on WhatsApp</span>
+          </button>
+          <button id="downloadPdfBtn" class="flex-1 py-2.5 px-4 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm">
+            <span>Download Engineering Sheet (PDF)</span>
+          </button>
+        </div>
+
+        <!-- Action Buttons Row 2: Visual Card & Contractor Tender RFP -->
+        <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
+          <button id="downloadPngCardBtn" class="flex-1 py-2 px-3 rounded-md bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-medium text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs">
+            <span>🖼️ Download Visual Card (PNG)</span>
+          </button>
+          <button id="copyTenderBtn" class="flex-1 py-2 px-3 rounded-md bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-medium text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs">
+            <span>📋 Copy Contractor Tender Spec</span>
+          </button>
+        </div>
+
+        <!-- Copy Feedback Alert -->
+        <div id="copyFeedback" class="hidden text-center text-xs text-emerald-700 font-medium py-1">
+          ✓ Summary copied to clipboard. Ready to paste in WhatsApp.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AdSense Placement (Disabled until approval. Paste your AdSense snippet here once approved)
+    <div class="mt-10 p-4 rounded-lg bg-white border border-slate-200 text-center">
+      <div class="text-[10px] uppercase tracking-wider text-slate-400 font-mono mb-2">SPONSORED ADVISORY</div>
+      <div class="h-20 bg-slate-50 border border-dashed border-slate-300 rounded flex items-center justify-center text-slate-500 text-xs">
+        <span>Verified Solar Equipment & Financing Providers (AdSense Placement)</span>
+      </div>
+    </div>
+    -->
+
+    <!-- Editorial Guide Section -->
+    <section class="mt-14 border-t border-slate-200 pt-10 text-slate-700 text-sm leading-relaxed max-w-3xl mx-auto space-y-8">
+      <div>
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 mb-2">
+          How NEPRA & K-Electric Slabs Affect Solar Payback
+        </h2>
+        <p>
+          Residential power tariffs in Pakistan follow a progressive bracket structure. Consumers who consume under 200 units on average across a six-month cycle are designated as "Protected". Crossing this threshold transitions the meter into the "Unprotected" category, where per-unit base energy rates nearly double, in addition to fixed capacity charges applied per kilowatt of sanctioned load.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 mb-2">
+          Solar System Sizing: Temperature and Dust Derating
+        </h2>
+        <p>
+          Pakistan averages 5.0 to 5.4 Peak Sun Hours (PSH) per day across most urban centers. However, real-world generation is reduced by extreme ambient summer temperatures (which decrease silicon module efficiency by 0.35% per degree Celsius above 25°C), atmospheric dust accumulation, and inverter DC-to-AC conversion. A realistic sizing model applies a 0.78 system derating factor to prevent underperformance.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 mb-2">
+          Battery Considerations for Night AC Loads
+        </h2>
+        <p>
+          Deep-cycle tubular lead-acid batteries have a safe usable depth of discharge (DoD) of only 50%. Subjecting them to the continuous inductive load of an inverter air conditioner causes premature sulfation and failure within 12 to 18 months. For overnight AC operation, Lithium Iron Phosphate (LiFePO4) storage banks provide 85% usable capacity and maintain voltage stability over 4,000 charge cycles.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 mb-2">
+          Single-Phase vs. Three-Phase Meters for Net-Metering
+        </h2>
+        <p>
+          NEPRA's Alternative and Renewable Energy Distributed Generation Regulations strictly require a 3-Phase bidirectional green meter for all net-metering installations. Single-phase consumers must submit a Phase Conversion and Sanctioned Load Extension application to their DISCO (K-Electric, LESCO, IESCO, MEPCO) prior to commissioning. Sanctioned load must match or exceed the inverter capacity.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 mb-2">
+          Mounting Structures: Standard L2 vs. Elevated L3 Pergolas
+        </h2>
+        <p>
+          Standard low-mount L2 frames elevate panels 2 to 3 feet above the roof surface, representing the most economical solution for large open roofs. Elevated L3 pergolas elevate panels 8 to 10 feet using heavy-gauge galvanized steel (GI) pipe columns, allowing full utilization of the roof area for walking, recreation, or storage, while ensuring structural anchoring against coastal wind gusts up to 120 km/h.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500 mt-12">
+    <div class="max-w-5xl mx-auto px-4 space-y-3">
+            <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-slate-600 font-medium text-xs sm:text-sm">
+        <a href="/" class="text-slate-900 font-semibold">Solar Calculator</a>
+        <a href="/ke-bill-calculator.html" class="hover:text-slate-900 transition-colors">K-Electric</a>
+        <a href="/lesco-solar-calculator.html" class="hover:text-slate-900 transition-colors">LESCO</a>
+        <a href="/iesco-solar-calculator.html" class="hover:text-slate-900 transition-colors">IESCO</a>
+        <a href="/mepco-solar-calculator.html" class="hover:text-slate-900 transition-colors">MEPCO</a>
+        <a href="/gepco-solar-calculator.html" class="hover:text-slate-900 transition-colors">GEPCO</a>
+        <a href="/fesco-solar-calculator.html" class="hover:text-slate-900 transition-colors">FESCO</a>
+        <a href="/3kw-solar-system-pakistan.html" class="hover:text-slate-900 transition-colors">3kW Cost</a>
+        <a href="/5kw-solar-system-pakistan.html" class="hover:text-slate-900 transition-colors">5kW Cost</a>
+        <a href="/10kw-solar-system-pakistan.html" class="hover:text-slate-900 transition-colors">10kW Cost</a>
+        <a href="/solar-batteries-pakistan.html" class="hover:text-slate-900 transition-colors">Batteries</a>
+        <a href="/solar-quote-validator.html" class="hover:text-slate-900 transition-colors">Quote Validator</a>
+        <a href="/embed.html" class="hover:text-slate-900 transition-colors font-semibold text-emerald-700">Free Widget</a>
+        <a href="/about.html" class="hover:text-slate-900 transition-colors">About</a>
+        <a href="/privacy-policy.html" class="hover:text-slate-900 transition-colors">Privacy</a>
+        <a href="/terms.html" class="hover:text-slate-900 transition-colors">Terms</a>
+      </div>
+      <p class="font-medium text-slate-700">SOLARAUDIT.ONLINE &copy; 2026. Independent Solar Audit Tool.</p>
+      <p class="text-slate-400">Calculations reflect NEPRA determination formulas and active wholesale hardware benchmarks in Pakistan.</p>
+    </div>
+  </footer>
+
+  <!-- Core Scripts -->
+  <script src="js/tariff-data.js"></script>
+  <script src="js/calculator-engine.js"></script>
+  <script src="js/pdf-generator.js"></script>
+  <script src="js/visual-card.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
