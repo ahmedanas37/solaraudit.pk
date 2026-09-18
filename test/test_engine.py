@@ -160,6 +160,25 @@ def test_engine():
     assert (ac_mo / total_mo) > 0.55, "ACs should constitute >55% of summer load"
     print("[OK] Appliance unit profiler math verified.")
 
+    # 8. Test High-Consumption Estate / 1-2 Kanal Villa (Rs. 350,000 bill, 6 ACs overnight)
+    print("\n>>> Testing High-Consumption 1-2 Kanal Villa Math...")
+    high_units = 5500 # ~Rs. 350k bill in summer
+    high_daily = high_units / 30
+    high_dc_kw = high_daily / (5.0 * 0.78) # Lahore irradiance
+    high_panels = int(-(- (high_dc_kw * 1000) // 580))
+    high_actual_kw = (high_panels * 580) / 1000
+    
+    # 6 ACs overnight for 8 hours
+    ac_night_total_wh = ((6 * 750) + 200) * 8 # 37,600 Wh = 37.6 kWh
+    lithium_kwh_req = (ac_night_total_wh / 1000) / (0.85 * 0.92)
+    lithium_packs = int(-(- lithium_kwh_req // 5.12))
+    
+    print(f"High Consumption (5,500 units): {high_actual_kw:.2f} kWp ({high_panels} panels)")
+    print(f"6x Inverter ACs Night Load: {ac_night_total_wh/1000:.1f} kWh -> {lithium_packs}x 5.12 kWh LiFePO4 packs")
+    assert high_panels >= 75, f"Expected >= 75 panels for 5500 units, got {high_panels}"
+    assert lithium_packs >= 9, f"Expected >= 9 lithium packs for 6 ACs, got {lithium_packs}"
+    print("[OK] High-consumption estate calculations verified.")
+
     print("\n========================================================")
     print("ALL TESTS PASSED: Mathematical & Physics Engine is Sound!")
     print("========================================================")

@@ -253,11 +253,20 @@ const TARIFF_DATA = {
       hybrid_10kw: 380000,
       hybrid_12kw: 450000,
       hybrid_15kw: 540000,
+      hybrid_20kw: 680000,
+      hybrid_25kw: 820000,
+      hybrid_30kw: 960000,
+      hybrid_40kw: 1250000,
+      hybrid_50kw: 1550000,
       // On-grid string inverters
       ongrid_5kw: 155000,
       ongrid_10kw: 235000,
       ongrid_15kw: 310000,
-      ongrid_20kw: 380000
+      ongrid_20kw: 380000,
+      ongrid_25kw: 460000,
+      ongrid_30kw: 540000,
+      ongrid_40kw: 680000,
+      ongrid_50kw: 790000
     },
     battery: {
       // 51.2V 100Ah Lithium (LiFePO4) = 5.12 kWh (Current 2026 Hall Road / Saddar wholesale)

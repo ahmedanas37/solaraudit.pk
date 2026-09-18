@@ -345,7 +345,7 @@ document.addEventListener("DOMContentLoaded", function () {
       targetBill = breakdown.estimatedBillPkr;
       state.billPkr = targetBill;
       billValueDisplay.textContent = `Rs. ${targetBill.toLocaleString()}`;
-      billSlider.value = Math.min(180000, targetBill);
+      billSlider.value = Math.min(500000, targetBill);
 
       if (applianceTotalUnitsDisplay) {
         applianceTotalUnitsDisplay.textContent = `~${monthlyUnits.toLocaleString()} Units`;
@@ -404,7 +404,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Hardware Cards
     outDcKw.textContent = `${c.sizing.actualDcKw} kW`;
     outPanelCount.textContent = `${c.sizing.panelCount} panels (580W N-Type)`;
-    outInverter.textContent = `${c.sizing.inverterKw} kW Hybrid (48V)`;
+    outInverter.textContent = c.sizing.inverterKw >= 15 
+      ? `${c.sizing.inverterKw} kW 3-Phase Commercial Hybrid` 
+      : `${c.sizing.inverterKw} kW Hybrid (48V)`;
     outRoofSpace.textContent = `${c.sizing.areaSqFt} sq ft`;
     outRoofMarla.textContent = `~${c.sizing.areaMarlas} Marla`;
 

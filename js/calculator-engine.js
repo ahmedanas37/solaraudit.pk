@@ -83,12 +83,12 @@ const CalculatorEngine = (function () {
     if (!billPkr || billPkr <= 0) return 0;
 
     let low = 1;
-    let high = 5000;
+    let high = 15000;
     let bestUnits = 1;
     let minDiff = Infinity;
 
-    // Binary search over 0 - 5000 units range
-    for (let i = 0; i < 25; i++) {
+    // Binary search over 0 - 15000 units range (supports bills up to Rs. 800,000+)
+    for (let i = 0; i < 28; i++) {
       const mid = Math.round((low + high) / 2);
       const res = calculateBillFromUnits(mid, discoKey);
       const diff = Math.abs(res.totalBill - billPkr);
@@ -143,9 +143,24 @@ const CalculatorEngine = (function () {
     } else if (actualDcKw > 11.5 && actualDcKw <= 14.0) {
       inverterKw = 12;
       inverterType = "hybrid_12kw";
-    } else if (actualDcKw > 14.0) {
+    } else if (actualDcKw > 14.0 && actualDcKw <= 17.5) {
       inverterKw = 15;
       inverterType = "hybrid_15kw";
+    } else if (actualDcKw > 17.5 && actualDcKw <= 23.0) {
+      inverterKw = 20;
+      inverterType = "hybrid_20kw";
+    } else if (actualDcKw > 23.0 && actualDcKw <= 28.0) {
+      inverterKw = 25;
+      inverterType = "hybrid_25kw";
+    } else if (actualDcKw > 28.0 && actualDcKw <= 35.0) {
+      inverterKw = 30;
+      inverterType = "hybrid_30kw";
+    } else if (actualDcKw > 35.0 && actualDcKw <= 45.0) {
+      inverterKw = 40;
+      inverterType = "hybrid_40kw";
+    } else if (actualDcKw > 45.0) {
+      inverterKw = 50;
+      inverterType = "hybrid_50kw";
     }
 
     // Roof space requirements
