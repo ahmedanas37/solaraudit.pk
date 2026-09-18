@@ -13,69 +13,77 @@ const VisualCard = (function() {
     canvas.height = 675;
     const ctx = canvas.getContext("2d");
 
-    // 1. Background Gradient
+    // 1. Background (Clean Light Slate)
     const bgGrad = ctx.createLinearGradient(0, 0, 1200, 675);
-    bgGrad.addColorStop(0, "#0f172a");
-    bgGrad.addColorStop(1, "#1e293b");
+    bgGrad.addColorStop(0, "#f8fafc");
+    bgGrad.addColorStop(1, "#f1f5f9");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1200, 675);
 
     // 2. Decorative Top Accent Line
     const accentGrad = ctx.createLinearGradient(0, 0, 1200, 0);
     accentGrad.addColorStop(0, "#10b981");
-    accentGrad.addColorStop(0.5, "#3b82f6");
+    accentGrad.addColorStop(0.5, "#0284c7");
     accentGrad.addColorStop(1, "#f59e0b");
     ctx.fillStyle = accentGrad;
     ctx.fillRect(0, 0, 1200, 8);
 
-    // 3. Header Branding
-    ctx.fillStyle = "#ffffff";
+    // 3. Header Branding (Dark Crisp Typography on Light Background)
+    ctx.fillStyle = "#0f172a";
     ctx.font = "bold 34px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     ctx.fillText("SOLARAUDIT", 60, 75);
     
-    ctx.fillStyle = "#94a3b8";
+    ctx.fillStyle = "#64748b";
     ctx.font = "34px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     ctx.fillText(".ONLINE", 285, 75);
 
-    // Badge
-    ctx.fillStyle = "#10b981";
-    ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.fillText("INDEPENDENT AUDIT • 2026 NEPRA TARIFFS", 60, 110);
+    // Pill Badge
+    ctx.fillStyle = "#ecfdf5";
+    ctx.strokeStyle = "#a7f3d0";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(60, 95, 340, 28, 6);
+    ctx.fill();
+    ctx.stroke();
 
-    // 4. Metric Grid (4 Cards)
+    ctx.fillStyle = "#047857";
+    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText("INDEPENDENT AUDIT • 2026 NEPRA TARIFFS", 72, 114);
+
+    // 4. Metric Grid (4 Pure White Cards with Light Borders)
     const cards = [
       {
         label: "RECOMMENDED SOLAR ARRAY",
         value: `${state.sizing.actualDcKw} kW DC`,
         sub: `${state.sizing.panelCount}x 580W Tier-1 Bifacial Panels`,
-        color: "#ffffff"
+        color: "#0f172a"
       },
       {
         label: "TURNKEY FAIR CAPEX",
         value: `Rs. ${(state.financials.capexMin / 100000).toFixed(1)}L – ${(state.financials.capexMax / 100000).toFixed(1)}L`,
         sub: "Benchmark Hardware & Labor",
-        color: "#38bdf8"
+        color: "#0284c7"
       },
       {
         label: "ESTIMATED MONTHLY SAVINGS",
         value: `Rs. ${state.financials.monthlySavings.toLocaleString()}/mo`,
-        sub: `Pre-Solar: Rs. ${state.preBillPkr.toLocaleString()}`,
-        color: "#34d399"
+        sub: `Pre-Solar Bill: Rs. ${state.preBillPkr.toLocaleString()}`,
+        color: "#059669"
       },
       {
         label: "ESTIMATED PAYBACK",
         value: `~${state.financials.paybackYears} Years`,
         sub: `Annual ROI: ~${(100 / state.financials.paybackYears).toFixed(0)}%`,
-        color: "#fbbf24"
+        color: "#d97706"
       }
     ];
 
     const cardWidth = 515;
     const cardHeight = 180;
     const startX = 60;
-    const startY = 160;
+    const startY = 150;
     const gapX = 50;
-    const gapY = 30;
+    const gapY = 25;
 
     cards.forEach((card, idx) => {
       const col = idx % 2;
@@ -83,9 +91,15 @@ const VisualCard = (function() {
       const x = startX + col * (cardWidth + gapX);
       const y = startY + row * (cardHeight + gapY);
 
-      // Card Background
-      ctx.fillStyle = "rgba(30, 41, 59, 0.7)";
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.2)";
+      // Card Shadow (Subtle drop shadow)
+      ctx.fillStyle = "rgba(15, 23, 42, 0.04)";
+      ctx.beginPath();
+      ctx.roundRect(x + 2, y + 4, cardWidth, cardHeight, 14);
+      ctx.fill();
+
+      // Card Background (Pure White)
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#e2e8f0";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.roundRect(x, y, cardWidth, cardHeight, 14);
@@ -93,7 +107,7 @@ const VisualCard = (function() {
       ctx.stroke();
 
       // Card Label
-      ctx.fillStyle = "#94a3b8";
+      ctx.fillStyle = "#64748b";
       ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
       ctx.fillText(card.label, x + 25, y + 42);
 
@@ -102,28 +116,28 @@ const VisualCard = (function() {
       ctx.font = "bold 40px -apple-system, BlinkMacSystemFont, sans-serif";
       ctx.fillText(card.value, x + 25, y + 105);
 
-      // Card Sub
-      ctx.fillStyle = "#cbd5e1";
+      // Card Subtext
+      ctx.fillStyle = "#475569";
       ctx.font = "16px -apple-system, BlinkMacSystemFont, sans-serif";
       ctx.fillText(card.sub, x + 25, y + 145);
     });
 
-    // 5. Footer Specs Bar
-    ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
+    // 5. Footer Specs Bar (Light Slate Surface)
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 595, 1200, 80);
-    ctx.strokeStyle = "rgba(148, 163, 184, 0.2)";
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(0, 595);
     ctx.lineTo(1200, 595);
     ctx.stroke();
 
-    ctx.fillStyle = "#94a3b8";
+    ctx.fillStyle = "#475569";
     ctx.font = "15px -apple-system, BlinkMacSystemFont, sans-serif";
     const specsSummary = `Inverter: ${state.sizing.inverterKw}kW Hybrid | Roof: ~${state.sizing.areaSqFt} sq.ft (${state.sizing.areaMarlas} Marla) | ${state.battery ? state.battery.unitSpec : "Daytime Net-Metering"}`;
     ctx.fillText(specsSummary, 60, 642);
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#0f172a";
     ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
     ctx.fillText("Verify Contractor Quotes at: solaraudit.online", 780, 642);
 
