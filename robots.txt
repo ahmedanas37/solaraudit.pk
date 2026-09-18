@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow internal test folders and deploy scripts
+Disallow: /test/
+Disallow: /*.zip$
+Disallow: /deploy.php
+
+Sitemap: https://solaraudit.online/sitemap.xml

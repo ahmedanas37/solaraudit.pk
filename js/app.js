@@ -4,12 +4,23 @@
  */
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Read body dataset presets or URL search params for programmatic landing pages
+  const bodyData = document.body.dataset || {};
+  const urlParams = new URLSearchParams(window.location.search);
+
+  const initialCity = urlParams.get("city") || bodyData.presetCity || "karachi";
+  const cityMeta = (typeof TARIFF_DATA !== "undefined" && TARIFF_DATA.cities && TARIFF_DATA.cities[initialCity]) ? TARIFF_DATA.cities[initialCity] : null;
+  const initialDisco = urlParams.get("disco") || bodyData.presetDisco || (cityMeta ? cityMeta.disco : "kelectric");
+  const initialBill = parseInt(urlParams.get("bill") || bodyData.presetBill || "48000", 10);
+  const initialMode = urlParams.get("mode") || bodyData.presetMode || "bill";
+  const initialNightAc = bodyData.presetNightAc !== undefined ? bodyData.presetNightAc === "true" : true;
+
   // App State
   const state = {
-    cityKey: "karachi",
-    discoKey: "kelectric",
-    inputMode: "bill", // "bill" or "appliances"
-    billPkr: 48000,
+    cityKey: initialCity,
+    discoKey: initialDisco,
+    inputMode: initialMode, // "bill" or "appliances"
+    billPkr: initialBill,
     appliances: {
       ac15: 2,
       ac10: 0,
@@ -17,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
       fridge: 1,
       pump: 1
     },
-    nightAcEnabled: true,
+    nightAcEnabled: initialNightAc,
     nightAcCount: 1,
     nightHours: 8,
     batteryPreference: "lithium", // "lithium" or "tubular"
@@ -378,7 +389,8 @@ Turnkey Capex: Rs. ${(c.financials.capexMin / 100000).toFixed(1)}L – ${(c.fina
 Monthly Savings: Rs. ${c.financials.monthlySavings.toLocaleString()}/mo
 Payback Period: ~${c.financials.paybackYears} Years
 --------------------------------------------------
-Free calculator & installer BS-detector: https://solaraudit.online`;
+Free Independent Audit: https://solaraudit.online
+Contractor Quote Validator: https://solaraudit.online/solar-quote-validator.html`;
 
     navigator.clipboard.writeText(shareText).then(() => {
       copyFeedback.classList.remove("hidden");
@@ -394,6 +406,34 @@ Free calculator & installer BS-detector: https://solaraudit.online`;
     PdfGenerator.generateSpecificationSheet(state.calculatedState);
   });
 
+  // Sync initial DOM inputs with parsed state
+  if (citySelect) {
+    citySelect.value = state.cityKey;
+  }
+  if (billSlider && billValueDisplay) {
+    billSlider.value = state.billPkr;
+    billValueDisplay.textContent = `Rs. ${state.billPkr.toLocaleString()}`;
+  }
+  if (nightAcToggle) {
+    nightAcToggle.checked = state.nightAcEnabled;
+    if (state.nightAcEnabled) {
+      nightBatteryOptions.classList.remove("opacity-40", "pointer-events-none");
+    } else {
+      nightBatteryOptions.classList.add("opacity-40", "pointer-events-none");
+    }
+  }
+
   // Initial Calculation Run
   recalculate();
+
+  // Scroll to targeted focus section if specified
+  if (bodyData.focusSection === "validator" || urlParams.get("focus") === "validator") {
+    setTimeout(() => {
+      const validatorCard = document.getElementById("quoteKwInput");
+      if (validatorCard) {
+        validatorCard.closest(".tool-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        validatorCard.focus();
+      }
+    }, 450);
+  }
 });
