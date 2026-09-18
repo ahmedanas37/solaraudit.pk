@@ -392,12 +392,19 @@ Payback Period: ~${c.financials.paybackYears} Years
 Free Independent Audit: https://solaraudit.online
 Contractor Quote Validator: https://solaraudit.online/solar-quote-validator.html`;
 
-    navigator.clipboard.writeText(shareText).then(() => {
-      copyFeedback.classList.remove("hidden");
-      setTimeout(() => {
-        copyFeedback.classList.add("hidden");
-      }, 3000);
-    });
+    navigator.clipboard.writeText(shareText).catch(() => {});
+    copyFeedback.textContent = "✓ Summary copied! Opening WhatsApp...";
+    copyFeedback.classList.remove("hidden");
+    setTimeout(() => {
+      copyFeedback.classList.add("hidden");
+    }, 4000);
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const waUrl = isMobile 
+      ? `whatsapp://send?text=${encodeURIComponent(shareText)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+    
+    window.open(waUrl, "_blank");
   });
 
   // Action: Download PDF Specification Sheet
