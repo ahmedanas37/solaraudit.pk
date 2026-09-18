@@ -65,16 +65,15 @@
   Header set X-XSS-Protection "1; mode=block"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
 
-  # Exclude widget.html from X-Frame-Options to allow embedding across external websites
+  # Exclude widget.html from X-Frame-Options so it can be embedded anywhere
   SetEnvIf Request_URI "(widget\.html)$" IS_WIDGET
   Header set X-Frame-Options "SAMEORIGIN" env=!IS_WIDGET
-  Header set Content-Security-Policy "frame-ancestors *" env=IS_WIDGET
 
   <Files "widget.html">
     Header unset X-Frame-Options
     Header always unset X-Frame-Options
-    Header set Content-Security-Policy "frame-ancestors *"
-    Header always set Content-Security-Policy "frame-ancestors *"
+    Header unset Content-Security-Policy
+    Header always unset Content-Security-Policy
   </Files>
 </IfModule>
 
