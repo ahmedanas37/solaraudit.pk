@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <title>Free Embeddable Solar Calculator Widget for Pakistani Sites — SOLARAUDIT.ONLINE</title>
+  <meta name="description" content="Embed our free independent Pakistan solar system calculator widget on your real estate blog, property portal, or solar company website. 1 line of code.">
+  <link rel="canonical" href="https://solaraudit.online/embed.html">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <a href="/" class="font-bold text-base tracking-tight text-slate-900 flex items-center gap-2">
+        <span class="w-7 h-7 rounded bg-slate-900 text-white flex items-center justify-center text-xs font-bold">SA</span>
+        <span>SOLARAUDIT<span class="text-slate-500 font-normal">.ONLINE</span></span>
+      </a>
+      <a href="/" class="text-xs font-semibold px-3 py-1.5 rounded-md bg-slate-900 text-white hover:bg-slate-800 transition-colors">
+        Full Calculator &rarr;
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div class="text-center space-y-2">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+        Free Embeddable Solar Calculator Widget
+      </h1>
+      <p class="text-sm text-slate-600 max-w-xl mx-auto">
+        Enhance your Pakistani real estate portal, tech blog, or contractor website with our neutral, 2026 NEPRA-compliant solar sizing tool. Free forever.
+      </p>
+    </div>
+
+    <!-- Live Preview & Code Block -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+      
+      <!-- Preview -->
+      <div class="space-y-2">
+        <div class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">Live Widget Preview</div>
+        <div class="rounded-xl border border-slate-300 bg-white p-2 shadow-sm">
+          <iframe src="/widget.html" width="100%" height="450" frameborder="0" class="rounded-lg"></iframe>
+        </div>
+      </div>
+
+      <!-- Code Snippet -->
+      <div class="space-y-4">
+        <div class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">HTML Embed Code</div>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Copy and paste this snippet into your WordPress post, Webflow page, or HTML template:
+        </p>
+
+        <div class="relative bg-slate-900 rounded-lg p-4 text-xs font-mono text-emerald-400 overflow-x-auto shadow-inner">
+          <pre id="embedCodeSnippet">&lt;iframe 
+  src="https://solaraudit.online/widget.html" 
+  width="100%" 
+  height="460" 
+  frameborder="0" 
+  style="border-radius:12px; border:1px solid #e2e8f0; max-width:440px;"
+  title="Pakistan Solar Sizing Calculator"&gt;
+&lt;/iframe&gt;</pre>
+        </div>
+
+        <button id="copyEmbedBtn" class="w-full py-2.5 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm">
+          <span>Copy Embed Code to Clipboard</span>
+        </button>
+        <div id="copyEmbedNotice" class="hidden text-center text-xs text-emerald-700 font-medium">
+          ✓ Embed code copied to clipboard!
+        </div>
+
+        <div class="bg-white p-4 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
+          <div class="font-bold text-slate-800">Why Embed SOLARAUDIT?</div>
+          <ul class="list-disc list-inside space-y-1 text-slate-500">
+            <li>Zero latency: calculations run 100% client-side in visitor's browser.</li>
+            <li>Always accurate: automatically reflects active NEPRA & DISCO progressive slabs.</li>
+            <li>Mobile responsive: adapts automatically to any column or sidebar width.</li>
+            <li>No ads or tracking in the widget frame.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500 mt-12">
+    <div class="max-w-5xl mx-auto px-4 space-y-3">
+      <p class="font-medium text-slate-700">SOLARAUDIT.ONLINE &copy; 2026. Independent Solar Audit Tool.</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("copyEmbedBtn").addEventListener("click", () => {
+      const code = document.getElementById("embedCodeSnippet").innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const notice = document.getElementById("copyEmbedNotice");
+        notice.classList.remove("hidden");
+        setTimeout(() => notice.classList.add("hidden"), 3000);
+      });
+    });
+  </script>
+</body>
+</html>\n

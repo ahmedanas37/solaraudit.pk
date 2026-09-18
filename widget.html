@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Solar Audit Widget — SOLARAUDIT.ONLINE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-white text-slate-900 p-3 sm:p-4 antialiased select-none">
+
+  <!-- Widget Container -->
+  <div class="max-w-md mx-auto rounded-xl border border-slate-200 bg-slate-50/50 p-4 shadow-xs">
+    
+    <!-- Widget Header -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-3">
+      <div class="flex items-center gap-2">
+        <span class="w-6 h-6 rounded bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold">SA</span>
+        <span class="font-bold text-xs tracking-tight text-slate-900">SOLARAUDIT<span class="text-slate-500 font-normal">.ONLINE</span></span>
+      </div>
+      <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+        2026 Tariffs
+      </span>
+    </div>
+
+    <!-- Controls -->
+    <div class="space-y-3">
+      <!-- City Select -->
+      <div>
+        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+          <span>City / DISCO</span>
+        </div>
+        <select id="widgetCitySelect" class="w-full bg-white border border-slate-300 rounded-md py-1.5 px-2.5 text-xs text-slate-800 font-medium focus:outline-none focus:ring-1 focus:ring-slate-900">
+          <option value="karachi">Karachi (K-Electric)</option>
+          <option value="lahore" selected>Lahore (LESCO)</option>
+          <option value="islamabad">Islamabad / RWP (IESCO)</option>
+          <option value="multan">Multan / South Punjab (MEPCO)</option>
+          <option value="faisalabad">Faisalabad (FESCO)</option>
+          <option value="gujranwala">Gujranwala / Sialkot (GEPCO)</option>
+          <option value="peshawar">Peshawar (PESCO)</option>
+        </select>
+      </div>
+
+      <!-- Bill Slider -->
+      <div>
+        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+          <span>Monthly Electricity Bill</span>
+          <span id="widgetBillDisplay" class="font-mono text-emerald-700 font-bold">Rs. 45,000</span>
+        </div>
+        <input id="widgetBillSlider" type="range" min="12000" max="250000" step="1000" value="45000" class="w-full accent-slate-900 cursor-pointer h-1.5 bg-slate-200 rounded-lg">
+      </div>
+    </div>
+
+    <!-- Output Grid -->
+    <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-200">
+      <div class="p-2.5 bg-white rounded-lg border border-slate-200">
+        <div class="text-[10px] uppercase font-mono tracking-wider text-slate-400">System Sizing</div>
+        <div id="widgetSolarKw" class="text-base font-bold text-slate-900 mt-0.5">5.2 kW</div>
+        <div id="widgetPanels" class="text-[10px] text-slate-500">9x 580W Panels</div>
+      </div>
+
+      <div class="p-2.5 bg-white rounded-lg border border-slate-200">
+        <div class="text-[10px] uppercase font-mono tracking-wider text-slate-400">Turnkey Capex</div>
+        <div id="widgetCapex" class="text-base font-bold text-slate-900 mt-0.5">Rs. 4.8L – 5.8L</div>
+        <div class="text-[10px] text-slate-500">Tier-1 Market Price</div>
+      </div>
+
+      <div class="p-2.5 bg-white rounded-lg border border-slate-200">
+        <div class="text-[10px] uppercase font-mono tracking-wider text-slate-400">Monthly Savings</div>
+        <div id="widgetSavings" class="text-base font-bold text-emerald-600 mt-0.5">Rs. 38,500/mo</div>
+        <div class="text-[10px] text-slate-500">Slab avoidance</div>
+      </div>
+
+      <div class="p-2.5 bg-white rounded-lg border border-slate-200">
+        <div class="text-[10px] uppercase font-mono tracking-wider text-slate-400">Payback Period</div>
+        <div id="widgetPayback" class="text-base font-bold text-slate-900 mt-0.5">~1.9 Years</div>
+        <div class="text-[10px] text-slate-500">ROI: ~52% annually</div>
+      </div>
+    </div>
+
+    <!-- Actions & Attribution -->
+    <div class="mt-3 pt-3 border-t border-slate-200 flex flex-col gap-2">
+      <a id="widgetFullAuditLink" href="https://solaraudit.online" target="_blank" class="w-full py-2 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs text-center transition-all flex items-center justify-center gap-1.5 shadow-xs">
+        <span>Get Full Audit Sheet & Free PDF &rarr;</span>
+      </a>
+      
+      <div class="text-center text-[10px] text-slate-400">
+        ⚡ Free Independent Sizing Engine by <a href="https://solaraudit.online" target="_blank" class="text-slate-700 font-semibold hover:underline">SOLARAUDIT.ONLINE</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/tariff-data.js"></script>
+  <script src="js/calculator-engine.js"></script>
+  <script>
+    (function() {
+      const citySelect = document.getElementById("widgetCitySelect");
+      const billSlider = document.getElementById("widgetBillSlider");
+      const billDisplay = document.getElementById("widgetBillDisplay");
+      const outSolarKw = document.getElementById("widgetSolarKw");
+      const outPanels = document.getElementById("widgetPanels");
+      const outCapex = document.getElementById("widgetCapex");
+      const outSavings = document.getElementById("widgetSavings");
+      const outPayback = document.getElementById("widgetPayback");
+      const fullAuditLink = document.getElementById("widgetFullAuditLink");
+
+      function update() {
+        const city = citySelect.value;
+        const bill = parseInt(billSlider.value, 10);
+        billDisplay.textContent = "Rs. " + bill.toLocaleString();
+
+        const units = CalculatorEngine.reverseUnitsFromBill(bill, city);
+        const sizing = CalculatorEngine.calculateSolarSizing(units, city);
+        const financials = CalculatorEngine.calculateFinancials(sizing, null, bill, city);
+
+        outSolarKw.textContent = sizing.actualDcKw + " kW";
+        outPanels.textContent = sizing.panelCount + "x 580W Panels";
+        outCapex.textContent = "Rs. " + (financials.capexMin / 100000).toFixed(1) + "L – " + (financials.capexMax / 100000).toFixed(1) + "L";
+        outSavings.textContent = "Rs. " + financials.monthlySavings.toLocaleString() + "/mo";
+        outPayback.textContent = "~" + financials.paybackYears + " Years";
+
+        fullAuditLink.href = "https://solaraudit.online/?city=" + city + "&bill=" + bill;
+      }
+
+      citySelect.addEventListener("change", update);
+      billSlider.addEventListener("input", update);
+      update();
+    })();
+  </script>
+</body>
+</html>\n

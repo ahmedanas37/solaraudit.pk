@@ -490,6 +490,28 @@ Contractor Quote Validator: https://solaraudit.online/solar-quote-validator.html
     PdfGenerator.generateSpecificationSheet(state.calculatedState);
   });
 
+  // Action: Download Visual Audit Card (PNG)
+  const downloadPngCardBtn = document.getElementById("downloadPngCardBtn");
+  if (downloadPngCardBtn) {
+    downloadPngCardBtn.addEventListener("click", () => {
+      if (!state.calculatedState) return;
+      VisualCard.generatePngCard(state.calculatedState);
+    });
+  }
+
+  // Action: Copy Contractor Tender Spec
+  const copyTenderBtn = document.getElementById("copyTenderBtn");
+  if (copyTenderBtn) {
+    copyTenderBtn.addEventListener("click", () => {
+      if (!state.calculatedState) return;
+      const tenderText = VisualCard.generateContractorTender(state.calculatedState);
+      navigator.clipboard.writeText(tenderText).catch(() => {});
+      copyFeedback.textContent = "✓ Contractor Tender Spec copied! Ready to send to installers.";
+      copyFeedback.classList.remove("hidden");
+      setTimeout(() => copyFeedback.classList.add("hidden"), 4000);
+    });
+  }
+
   // Sync initial DOM inputs with parsed state
   if (citySelect) {
     citySelect.value = state.cityKey;
