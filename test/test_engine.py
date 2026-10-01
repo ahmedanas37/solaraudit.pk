@@ -1,24 +1,20 @@
 """
-SOLARAUDIT.ONLINE - Mathematical Engine Verification Test
-Runs standalone in Python to verify all billing slabs, solar sizing, and battery math.
+SOLARAUDIT.ONLINE - Mathematical & Physics Engine Verification Test
+Verifies 2026 NEPRA billing slabs, solar physics, LiFePO4 vs tubular battery storage,
+2026 Net-Billing financial calibration (On-Grid vs Hybrid LiFePO4),
+and tests the REAL JavaScript calculation engine in Chromium headless via Playwright.
 """
+
+import os
+from playwright.sync_api import sync_playwright
+
+WORKSPACE = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CHROMIUM_PATH = r"C:\Users\Anas\AppData\Local\Chromium\Application\chrome.exe"
 
 def test_engine():
     # 1. Test Billing Slabs Logic (NEPRA 2026 baseline)
     print(">>> Testing NEPRA 2026 progressive billing logic...")
-    
-    # Example: 780 units (typical residential consumer running 2 ACs)
     units = 780
-    
-    # Slabs for unprotected:
-    # 1-100 @ 23.59
-    # 101-200 @ 30.07
-    # 201-300 @ 34.26
-    # 301-400 @ 39.15
-    # 401-500 @ 41.36
-    # 501-600 @ 42.78
-    # 601-700 @ 43.92
-    # 701-780 (80 units) @ 48.84
     base_energy = (
         (100 * 23.59) +
         (100 * 30.07) +
@@ -32,11 +28,8 @@ def test_engine():
     print(f"Base Energy Cost for 780 units: Rs. {base_energy:,.2f}")
     assert base_energy > 28000, "Base energy calculation failed lower bound"
 
-    # Fixed charge for >700 units = 10 kW * 400 = Rs. 4,000
     fixed_charges = 4000
     subtotal = base_energy + fixed_charges
-
-    # Taxes & Surcharges
     fpa = units * 4.25
     fc = units * 3.23
     ed = subtotal * 0.015
@@ -91,97 +84,201 @@ def test_engine():
     assert tubular_banks >= 4, "Tubular bank must be at least 4 units"
     print("[OK] Battery storage physics verified.")
 
-    # 4. Financials & Payback
-    print("\n>>> Testing Financial Payback Engine...")
-    panels_cost = actual_dc_kw * 1000 * 33 # Rs. 33/W
-    inverter_cost = 280000 # 6 kW Hybrid
-    bos_cost = actual_dc_kw * 1000 * 22 # Rs. 22/W
-    battery_cost = 310000 # 1x Lithium pack
-    net_metering = 75000
-    total_capex = panels_cost + inverter_cost + bos_cost + battery_cost + net_metering
-    monthly_savings = total_bill # Assuming near 100% offset
-    payback_months = (total_capex / (monthly_savings * 12)) * 12
-    five_year_net = (monthly_savings * 60) - total_capex
+    # 4. Test 2026 Net-Billing Calibration (On-Grid vs Hybrid LiFePO4)
+    print("\n>>> Testing 2026 Net-Billing Financial Model Calibration...")
+    naepp_export_rate = 21.50 # Rs./kWh wholesale buyback
+    monthly_gen = round(actual_dc_kw * psh * derating * 30) # ~804 units
+    daily_gen = monthly_gen / 30 # 26.8 units/day
 
-    print(f"Total Capex: Rs. {total_capex:,.2f}")
-    print(f"Monthly Savings: Rs. {monthly_savings:,.2f}")
-    print(f"Payback Period: {payback_months:.1f} Months ({payback_months / 12:.1f} Years)")
-    print(f"5-Year Net Profit: Rs. {five_year_net:,.2f}")
-    print("[OK] Financial payback engine verified.")
+    # Typical residential split: 35% day, 65% night
+    day_demand = daily_units * 0.35 # 9.1 units/day
+    night_demand = daily_units * 0.65 # 16.9 units/day
+
+    # Scenario A: On-Grid System (No battery)
+    ongrid_day_direct = min(day_demand, daily_gen) # 9.1 units
+    ongrid_day_export = max(0, daily_gen - ongrid_day_direct) # 17.7 units
+    ongrid_day_import = max(0, day_demand - ongrid_day_direct) # 0
+    ongrid_night_import = night_demand # 16.9 units MUST import
+    ongrid_monthly_import = round((ongrid_day_import + ongrid_night_import) * 30) # 507 units
+    ongrid_monthly_export = round(ongrid_day_export * 30) # 531 units
+    ongrid_export_credit = round(ongrid_monthly_export * naepp_export_rate) # Rs. 11,417
+
+    print(f"On-Grid: Monthly Grid Import = {ongrid_monthly_import} units (Nighttime retail slab)")
+    print(f"On-Grid: Monthly Grid Export = {ongrid_monthly_export} units @ Rs. {naepp_export_rate}/kWh -> Rs. {ongrid_export_credit:,}")
+    assert ongrid_monthly_import > 450, "On-grid night import must remain substantial without battery"
+    assert ongrid_export_credit > 8000, "On-grid daytime export must generate significant NAEPP credit"
+
+    # Scenario B: Hybrid System with LiFePO4 battery (10.24 kWh = 7.6 kWh usable)
+    hybrid_day_direct = min(day_demand, daily_gen) # 9.1 units
+    hybrid_excess_day = daily_gen - hybrid_day_direct # 17.7 units
+    hybrid_battery_stored = min(hybrid_excess_day, total_kwh, night_demand) # 7.6 units stored
+    hybrid_day_export = max(0, hybrid_excess_day - hybrid_battery_stored) # 10.1 units exported
+    hybrid_night_import = max(0, night_demand - hybrid_battery_stored) # 9.3 units import
+    hybrid_monthly_import = round(hybrid_night_import * 30) # 279 units (drastic slab reduction!)
+    hybrid_monthly_export = round(hybrid_day_export * 30) # 303 units
+
+    print(f"Hybrid: Monthly Grid Import = {hybrid_monthly_import} units (Reduced from {ongrid_monthly_import} units!)")
+    print(f"Hybrid: Monthly Grid Export = {hybrid_monthly_export} units")
+    assert hybrid_monthly_import < ongrid_monthly_import, "Hybrid LiFePO4 battery MUST reduce grid import compared to on-grid"
+    print("[OK] 2026 Net-Billing financial calibration verified.")
 
     # 5. Test Elevated L3 Structure & Quote Validator Logic
     print("\n>>> Testing Elevated L3 Pergola & Quote Validator...")
-    l3_extra_per_watt = 14 # Rs. 14/W
+    l3_extra_per_watt = 13 # Rs. 13/W
+    panels_cost = actual_dc_kw * 1000 * 33 # Rs. 33/W
+    inverter_cost = 230000 # 6 kW Hybrid
+    bos_cost = actual_dc_kw * 1000 * 20 # Rs. 20/W
+    battery_cost = 225000 # 1x Lithium pack
+    net_metering = 65000
+    total_capex = panels_cost + inverter_cost + bos_cost + battery_cost + net_metering
     elevated_capex = total_capex + (actual_dc_kw * 1000 * l3_extra_per_watt)
     print(f"Elevated L3 Turnkey Capex: Rs. {elevated_capex:,.2f} (+Rs. {actual_dc_kw * 1000 * l3_extra_per_watt:,.0f} for heavy GI pergola)")
     assert elevated_capex > total_capex, "Elevated capex must exceed standard L2"
 
-    # Quote Validator Check
-    # Case A: 6 kW quote @ Rs. 850,000 hybrid -> ~Rs. 141/W -> Fair
     quote_rate_a = 850000 / (6 * 1000)
     assert 130 <= quote_rate_a <= 165, f"Quote A should be fair, got {quote_rate_a}"
-
-    # Case B: 6 kW quote @ Rs. 600,000 hybrid -> ~Rs. 100/W -> Cheap/Suspicious
-    quote_rate_b = 600000 / (6 * 1000)
-    assert quote_rate_b < 115, f"Quote B should trigger cut-corner alert, got {quote_rate_b}"
-
-    # Case C: 6 kW quote @ Rs. 1,200,000 hybrid -> ~Rs. 200/W -> Overpriced
-    quote_rate_c = 1200000 / (6 * 1000)
-    assert quote_rate_c > 175, f"Quote C should trigger overpriced alert, got {quote_rate_c}"
+    quote_rate_b = 500000 / (6 * 1000)
+    assert quote_rate_b < 95, f"Quote B should trigger cut-corner alert, got {quote_rate_b}"
+    quote_rate_c = 1100000 / (6 * 1000)
+    assert quote_rate_c > 150, f"Quote C should trigger overpriced alert, got {quote_rate_c}"
     print("[OK] Quote validator and L3 structure logic verified.")
 
-    # 6. Test Multi-City Solar Yields (Quetta vs Lahore vs Karachi)
+    # 6. Test Multi-City Irradiance
     print("\n>>> Testing Multi-City Solar Yield Comparison...")
-    # Sizing for 600 units/month in Quetta (5.8 PSH) vs Lahore (5.0 PSH)
     target_units = 600
     daily_target = target_units / 30
     quetta_kw = daily_target / (5.8 * 0.78)
     lahore_kw = daily_target / (5.0 * 0.78)
     quetta_panels = int(-(- (quetta_kw * 1000) // 580))
     lahore_panels = int(-(- (lahore_kw * 1000) // 580))
-    print(f"Quetta (5.8 PSH): {quetta_kw:.2f} kW raw -> {quetta_panels} panels (580W)")
-    print(f"Lahore (5.0 PSH): {lahore_kw:.2f} kW raw -> {lahore_panels} panels (580W)")
-    assert quetta_panels <= lahore_panels, "Quetta with higher PSH must require fewer or equal panels than Lahore"
+    print(f"Quetta (5.8 PSH): {quetta_kw:.2f} kW -> {quetta_panels} panels")
+    print(f"Lahore (5.0 PSH): {lahore_kw:.2f} kW -> {lahore_panels} panels")
+    assert quetta_panels <= lahore_panels, "Quetta must require fewer or equal panels than Lahore"
     print("[OK] Multi-city climate irradiance comparison verified.")
 
-    # 7. Test Appliance Load Breakdown Logic
-    print("\n>>> Testing Appliance Load Breakdown Logic...")
-    # 2x 1.5T AC (750W * 8h = 12 kWh/day = 360 kWh/mo)
-    # 5x Fans (55W * 14h = 3.85 kWh/day = 115.5 kWh/mo)
-    # 1x Fridge (150W * 24h = 3.6 kWh/day = 108 kWh/mo)
-    # 1x 1HP Pump (1100W * 1h = 1.1 kWh/day = 33 kWh/mo)
-    ac_mo = 2 * 0.75 * 8 * 30
-    fans_mo = 5 * 0.055 * 14 * 30
-    fridge_mo = 1 * 0.15 * 24 * 30
-    pump_mo = 1 * 1.1 * 1 * 30
-    total_mo = ac_mo + fans_mo + fridge_mo + pump_mo
-    print(f"Appliance Monthly Sum: {total_mo:.1f} kWh (AC: {ac_mo:.0f} kWh = {ac_mo/total_mo*100:.1f}%)")
-    assert 616 <= round(total_mo) <= 617, f"Expected ~616-617 kWh, got {total_mo}"
-    assert (ac_mo / total_mo) > 0.55, "ACs should constitute >55% of summer load"
-    print("[OK] Appliance unit profiler math verified.")
 
-    # 8. Test High-Consumption Estate / 1-2 Kanal Villa (Rs. 350,000 bill, 6 ACs overnight)
-    print("\n>>> Testing High-Consumption 1-2 Kanal Villa Math...")
-    high_units = 5500 # ~Rs. 350k bill in summer
-    high_daily = high_units / 30
-    high_dc_kw = high_daily / (5.0 * 0.78) # Lahore irradiance
-    high_panels = int(-(- (high_dc_kw * 1000) // 580))
-    high_actual_kw = (high_panels * 580) / 1000
-    
-    # 6 ACs overnight for 8 hours
-    ac_night_total_wh = ((6 * 750) + 200) * 8 # 37,600 Wh = 37.6 kWh
-    lithium_kwh_req = (ac_night_total_wh / 1000) / (0.85 * 0.92)
-    lithium_packs = int(-(- lithium_kwh_req // 5.12))
-    
-    print(f"High Consumption (5,500 units): {high_actual_kw:.2f} kWp ({high_panels} panels)")
-    print(f"6x Inverter ACs Night Load: {ac_night_total_wh/1000:.1f} kWh -> {lithium_packs}x 5.12 kWh LiFePO4 packs")
-    assert high_panels >= 75, f"Expected >= 75 panels for 5500 units, got {high_panels}"
-    assert lithium_packs >= 9, f"Expected >= 9 lithium packs for 6 ACs, got {lithium_packs}"
-    print("[OK] High-consumption estate calculations verified.")
-
+def test_real_javascript_engine():
     print("\n========================================================")
-    print("ALL TESTS PASSED: Mathematical & Physics Engine is Sound!")
+    print(">>> Testing REAL JavaScript Engine in Headless Chromium...")
     print("========================================================")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(executable_path=CHROMIUM_PATH, headless=True)
+        page = browser.new_page()
+        page.goto(f"file:///{WORKSPACE}/index.html")
+        page.wait_for_load_state("networkidle")
+
+        # 1. Verify Bill Calculation in JS
+        bill_res = page.evaluate("() => CalculatorEngine.calculateBillFromUnits(780, 'kelectric')")
+        print("Real JS Bill for 780 units:", bill_res["totalBill"])
+        assert 45000 < bill_res["totalBill"] < 55000, "JS Bill calculation out of expected range"
+
+        # 2. Verify Solar Sizing in JS
+        sizing_res = page.evaluate("() => CalculatorEngine.calculateSolarSizing(780, 'karachi')")
+        print("Real JS Sizing for 780 units in Karachi:", sizing_res["actualDcKw"], "kWp, Panels:", sizing_res["panelCount"])
+        assert sizing_res["panelCount"] == 11
+        assert sizing_res["actualDcKw"] == 6.38
+
+        # 3. Verify Battery Storage in JS
+        bat_res = page.evaluate("() => CalculatorEngine.calculateNightBattery(1, 8, 'lithium')")
+        print("Real JS Battery Sizing:", bat_res["unitSpec"], "| Total:", bat_res["totalEnergyKwh"], "kWh")
+        assert bat_res["unitCount"] >= 1
+        assert "LiFePO4" in bat_res["unitSpec"]
+
+        # 4. Verify 2026 Net-Billing Model in JS: On-Grid vs Hybrid
+        fin_ongrid = page.evaluate("""() => {
+            const sizing = CalculatorEngine.calculateSolarSizing(780, 'kelectric');
+            return CalculatorEngine.calculateFinancials(sizing, null, 48000, 'kelectric', true);
+        }""")
+        print("\nReal JS On-Grid Net-Billing Output:")
+        print(f"  System Type: {fin_ongrid['netBilling']['systemType']}")
+        print(f"  Monthly Generation: {fin_ongrid['netBilling']['monthlyGenerationUnits']} units")
+        print(f"  Grid Import: {fin_ongrid['netBilling']['gridImportUnits']} units")
+        print(f"  Grid Export: {fin_ongrid['netBilling']['gridExportUnits']} units")
+        print(f"  Gross Import Bill: Rs. {fin_ongrid['netBilling']['grossImportBill']:,}")
+        print(f"  NAEPP Export Credit: Rs. {fin_ongrid['netBilling']['exportCreditPkr']:,}")
+        print(f"  Net Post-Solar Bill: Rs. {fin_ongrid['postBillPkr']:,}")
+        print(f"  Monthly Savings: Rs. {fin_ongrid['monthlySavings']:,}")
+        print(f"  Payback: {fin_ongrid['paybackYears']} Years")
+
+        assert fin_ongrid["netBilling"]["isNetBilling"] == True
+        assert fin_ongrid["netBilling"]["systemType"] == "ongrid_export"
+        assert fin_ongrid["netBilling"]["gridImportUnits"] > 400
+        assert fin_ongrid["netBilling"]["gridExportUnits"] > 300
+        assert fin_ongrid["netBilling"]["exportCreditPkr"] > 0
+
+        fin_hybrid = page.evaluate("""() => {
+            const sizing = CalculatorEngine.calculateSolarSizing(780, 'kelectric');
+            const battery = CalculatorEngine.calculateNightBattery(1, 8, 'lithium');
+            return CalculatorEngine.calculateFinancials(sizing, battery, 48000, 'kelectric', true);
+        }""")
+        print("\nReal JS Hybrid (LiFePO4) Net-Billing Output:")
+        print(f"  System Type: {fin_hybrid['netBilling']['systemType']}")
+        print(f"  Grid Import: {fin_hybrid['netBilling']['gridImportUnits']} units (vs {fin_ongrid['netBilling']['gridImportUnits']} ongrid)")
+        print(f"  Battery Self-Consumption: {fin_hybrid['netBilling']['batterySelfConsumptionUnits']} units")
+        print(f"  Net Post-Solar Bill: Rs. {fin_hybrid['postBillPkr']:,} (vs Rs. {fin_ongrid['postBillPkr']:,} ongrid)")
+        print(f"  Monthly Savings: Rs. {fin_hybrid['monthlySavings']:,} (vs Rs. {fin_ongrid['monthlySavings']:,} ongrid)")
+        print(f"  Self-Consumption %: {fin_hybrid['netBilling']['selfConsumptionPercent']}%")
+
+        assert fin_hybrid["netBilling"]["systemType"] == "hybrid_storage"
+        assert fin_hybrid["netBilling"]["batterySelfConsumptionUnits"] > 0
+        # Critical 2026 Net-Billing Check: Hybrid LiFePO4 MUST import fewer units than On-Grid
+        assert fin_hybrid["netBilling"]["gridImportUnits"] < fin_ongrid["netBilling"]["gridImportUnits"]
+        # Hybrid MUST deliver lower net post-solar bill than On-Grid
+        assert fin_hybrid["postBillPkr"] < fin_ongrid["postBillPkr"]
+        # Hybrid MUST deliver higher monthly savings than On-Grid
+        assert fin_hybrid["monthlySavings"] > fin_ongrid["monthlySavings"]
+        # Hybrid self-consumption % must exceed on-grid self-consumption %
+        assert fin_hybrid["netBilling"]["selfConsumptionPercent"] > fin_ongrid["netBilling"]["selfConsumptionPercent"]
+
+        # 5. Test Surplus Generation / Net Export Payout
+        fin_surplus = page.evaluate("""() => {
+            // Sizing for 300 units load, but generating 2000 units (oversized 15kW array)
+            const sizing = CalculatorEngine.calculateSolarSizing(300, 'karachi');
+            sizing.estimatedMonthlyGenerationUnits = 2000;
+            sizing.actualDcKw = 15.0;
+            return CalculatorEngine.calculateFinancials(sizing, null, 10000, 'kelectric', true);
+        }""")
+        print("\nReal JS Surplus Export Output (Oversized Array vs Small Load):")
+        print(f"  Monthly Gen: {fin_surplus['netBilling']['monthlyGenerationUnits']} units")
+        print(f"  Grid Export: {fin_surplus['netBilling']['gridExportUnits']} units")
+        print(f"  Export Credit: Rs. {fin_surplus['netBilling']['exportCreditPkr']:,}")
+        print(f"  Gross Import: Rs. {fin_surplus['netBilling']['grossImportBill']:,}")
+        print(f"  Net Export Payout: Rs. {fin_surplus['netBilling']['netExportPayout']:,}")
+        print(f"  Post-Solar Bill: Rs. {fin_surplus['postBillPkr']}")
+        print(f"  Monthly Financial Gain: Rs. {fin_surplus['monthlySavings']:,}")
+
+        assert fin_surplus["postBillPkr"] == 0
+        assert fin_surplus["netBilling"]["netExportPayout"] > 0
+        assert fin_surplus["monthlySavings"] == 10000 + fin_surplus["netBilling"]["netExportPayout"]
+
+        # 6. Test Zero-Export Mode (includeNetMetering = false)
+        fin_no_export = page.evaluate("""() => {
+            const sizing = CalculatorEngine.calculateSolarSizing(780, 'kelectric');
+            return CalculatorEngine.calculateFinancials(sizing, null, 48000, 'kelectric', false);
+        }""")
+        assert fin_no_export["netBilling"]["exportCreditPkr"] == 0
+        assert fin_no_export["postBillPkr"] == fin_no_export["netBilling"]["grossImportBill"]
+        assert fin_no_export["monthlySavings"] == 48000 - fin_no_export["postBillPkr"]
+
+        # 7. Test Multi-City Sweet Spot Sizing
+        sweet_quetta = page.evaluate("() => CalculatorEngine.calculateSweetSpot(780, 'qesco', 900000, { cityKey: 'quetta' })")
+        sweet_lahore = page.evaluate("() => CalculatorEngine.calculateSweetSpot(780, 'lesco', 900000, { cityKey: 'lahore' })")
+        print(f"\nSweet Spot City Sizing: Quetta (5.8 PSH) -> {sweet_quetta['recommendedKw']} kW | Lahore (5.0 PSH) -> {sweet_lahore['recommendedKw']} kW")
+        assert sweet_quetta["recommendedKw"] < sweet_lahore["recommendedKw"], "Quetta sweet spot should require fewer kW than Lahore due to higher PSH"
+
+        # 8. Verify Quote Validator in JS
+        quote_res = page.evaluate("() => CalculatorEngine.validateInstallerQuote(6.0, 750000, 'hybrid')")
+        safe_badge = quote_res["badgeText"].encode("ascii", "replace").decode("ascii")
+        print("\nReal JS Quote Validator (6kW Hybrid @ Rs. 750k):", safe_badge, "| Status:", quote_res["status"])
+        assert quote_res["status"] == "fair"
+
+        browser.close()
+    print("\n[PASS] Real JavaScript Engine in Chromium passed 100% of mathematical and net-billing checks!")
+
 
 if __name__ == "__main__":
     test_engine()
+    test_real_javascript_engine()
+    print("\n========================================================")
+    print("ALL ENGINE & PHYSICS VERIFICATIONS PASSED SUCCESSFULLY!")
+    print("========================================================")

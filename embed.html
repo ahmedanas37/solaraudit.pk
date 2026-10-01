@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
+  <meta name="robots" content="noindex, follow">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
@@ -8,8 +9,7 @@
   <title>Free Embeddable Solar Calculator Widget for Pakistani Sites — SOLARAUDIT.ONLINE</title>
   <meta name="description" content="Embed our free independent Pakistan solar system calculator widget on your real estate blog, property portal, or solar company website. 1 line of code.">
   <link rel="canonical" href="https://solaraudit.online/embed.html">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.min.css?v=2026.2">
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
@@ -40,7 +40,7 @@
       
       <!-- Preview -->
       <div class="space-y-2">
-        <div class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">Live Widget Preview</div>
+        <div class="text-xs font-mono uppercase tracking-wider text-slate-600 font-semibold">Live Widget Preview</div>
         <div class="rounded-xl border border-slate-300 bg-white p-2 shadow-sm">
           <iframe src="/widget.html" width="100%" height="490" frameborder="0" class="rounded-lg"></iframe>
         </div>
@@ -48,7 +48,7 @@
 
       <!-- Code Snippet -->
       <div class="space-y-4">
-        <div class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">HTML Embed Code</div>
+        <div class="text-xs font-mono uppercase tracking-wider text-slate-600 font-semibold">HTML Embed Code</div>
         <p class="text-xs text-slate-600 leading-relaxed">
           Copy and paste this snippet into your WordPress post, Webflow page, or HTML template:
         </p>
@@ -71,7 +71,7 @@
 
         <div class="relative bg-slate-900 rounded-lg p-4 text-xs font-mono text-emerald-400 overflow-x-auto shadow-inner">
           <pre id="embedCodeSnippet">&lt;iframe 
-  src="https://solaraudit.online/widget.html?v=2026.3&amp;city=lahore" 
+  src="https://solaraudit.online/widget.html?v=2026.2&amp;city=lahore" 
   width="100%" 
   height="490" 
   frameborder="0" 
@@ -114,9 +114,9 @@
 
     function updateSnippet() {
       const city = citySelect.value;
-      snippetPre.innerText = `<iframe \n  src="https://solaraudit.online/widget.html?v=2026.3&city=${city}" \n  width="100%" \n  height="490" \n  frameborder="0" \n  style="border-radius:12px; border:1px solid #e2e8f0; max-width:440px;"\n  title="Pakistan Solar Sizing Calculator">\n</iframe>`;
+      snippetPre.innerText = `<iframe \n  src="https://solaraudit.online/widget.html?v=2026.2&city=${city}" \n  width="100%" \n  height="490" \n  frameborder="0" \n  style="border-radius:12px; border:1px solid #e2e8f0; max-width:440px;"\n  title="Pakistan Solar Sizing Calculator">\n</iframe>`;
       if (previewIframe) {
-        previewIframe.src = `/widget.html?v=2026.3&city=${city}`;
+        previewIframe.src = `/widget.html?v=2026.2&city=${city}`;
       }
     }
 

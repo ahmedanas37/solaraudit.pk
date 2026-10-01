@@ -15,4 +15,6 @@ __pycache__/
 # Search Engine Site Verification files
 google*.html
 BingSiteAuth.xml
-
+# Temporary Audit Artifacts
+gsc_*.png
+not_indexed_urls.txt

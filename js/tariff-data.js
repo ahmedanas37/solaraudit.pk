@@ -4,8 +4,15 @@
  */
 
 const TARIFF_DATA = {
-  version: "2026.1",
-  lastUpdated: "September 2026",
+  version: "2026.2",
+  lastUpdated: "October 2026",
+
+  // 2026 NEPRA Net-Billing & Export Buyback Regime
+  netBilling: {
+    naeppExportRate: 21.50, // Rs./kWh wholesale buyback rate (National Average Energy Purchase Price)
+    daytimeSelfConsumptionRatioDefault: 0.35, // Residential daytime direct self-consumption ratio without battery
+    commercialDaytimeRatioDefault: 0.70 // Commercial/office daytime direct self-consumption ratio
+  },
 
   // Solar Insolation & Climate factors
   cities: {

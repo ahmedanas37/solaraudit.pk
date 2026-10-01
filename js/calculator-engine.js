@@ -266,19 +266,86 @@ const CalculatorEngine = (function () {
     const capexMax = Math.round(baseCapex * 1.06);
     const avgCapex = Math.round((capexMin + capexMax) / 2);
 
-    // Calculate Residual Bill after solar offset
-    const residualUnits = Math.max(0, sizingResult.monthlyUnitsTarget - sizingResult.estimatedMonthlyGenerationUnits);
-    const postBill = residualUnits > 0 ? calculateBillFromUnits(residualUnits, discoKey).totalBill : 0;
+    // 2026 NEPRA Net-Billing Financial Calibration
+    const netBillingConfig = data.netBilling || { naeppExportRate: 21.50, daytimeSelfConsumptionRatioDefault: 0.35 };
+    const naeppRate = netBillingConfig.naeppExportRate || 21.50;
 
-    // Monthly Savings
-    const monthlySavings = Math.max(0, preBillPkr - postBill);
+    const monthlyDemandUnits = sizingResult.monthlyUnitsTarget || 0;
+    const monthlyGenUnits = sizingResult.estimatedMonthlyGenerationUnits || 0;
+    const dailyDemandUnits = monthlyDemandUnits / 30;
+    const dailyGenUnits = monthlyGenUnits / 30;
+
+    // Typical Pakistani residential load profile: ~35% daytime (fans, fridge, daytime AC), ~65% evening/night (overnight ACs & household)
+    const daytimeRatio = options.daytimeDemandRatio || netBillingConfig.daytimeSelfConsumptionRatioDefault || 0.35;
+    const dailyDaytimeDemand = dailyDemandUnits * daytimeRatio;
+    const dailyNighttimeDemand = dailyDemandUnits * (1 - daytimeRatio);
+
+    let monthlyDaytimeSelfConsumption = 0;
+    let monthlyBatterySelfConsumption = 0;
+    let monthlyGridImport = 0;
+    let monthlyGridExport = 0;
+
+    const isHybridWithBattery = batteryResult && (batteryResult.totalEnergyKwh > 0 || batteryResult.estimatedCost > 0);
+
+    if (isHybridWithBattery) {
+      // HYBRID SYSTEM WITH LiFePO4 BATTERY STORAGE:
+      // 1. Direct daytime solar self-consumption:
+      const dailyDirectDaySolar = Math.min(dailyDaytimeDemand, dailyGenUnits);
+      const dailyExcessSolarDay = Math.max(0, dailyGenUnits - dailyDirectDaySolar);
+
+      // 2. Battery storage charging from excess daytime solar:
+      const usableBatteryDailyKwh = batteryResult.totalEnergyKwh || (batteryResult.unitCount * 5.12 * 0.85 * 0.92);
+      const dailyBatteryStored = Math.min(dailyExcessSolarDay, usableBatteryDailyKwh, dailyNighttimeDemand);
+
+      // 3. Excess solar exported to grid at wholesale NAEPP buyback rate (~Rs. 21.50/kWh):
+      const dailyExport = Math.max(0, dailyExcessSolarDay - dailyBatteryStored);
+
+      // 4. Nighttime grid import (after battery discharge):
+      const dailyNightImport = Math.max(0, dailyNighttimeDemand - dailyBatteryStored);
+      const dailyDayImport = Math.max(0, dailyDaytimeDemand - dailyDirectDaySolar);
+
+      monthlyDaytimeSelfConsumption = Math.round(dailyDirectDaySolar * 30);
+      monthlyBatterySelfConsumption = Math.round(dailyBatteryStored * 30);
+      monthlyGridImport = Math.round((dailyDayImport + dailyNightImport) * 30);
+      monthlyGridExport = Math.round(dailyExport * 30);
+    } else {
+      // ON-GRID SYSTEM (No battery storage):
+      // 1. Direct daytime solar self-consumption:
+      const dailyDirectDaySolar = Math.min(dailyDaytimeDemand, dailyGenUnits);
+      const dailyExport = Math.max(0, dailyGenUnits - dailyDirectDaySolar);
+
+      // 2. Night load must be 100% imported from grid at high progressive retail slab rates:
+      const dailyDayImport = Math.max(0, dailyDaytimeDemand - dailyDirectDaySolar);
+      const dailyNightImport = dailyNighttimeDemand;
+
+      monthlyDaytimeSelfConsumption = Math.round(dailyDirectDaySolar * 30);
+      monthlyBatterySelfConsumption = 0;
+      monthlyGridImport = Math.round((dailyDayImport + dailyNightImport) * 30);
+      monthlyGridExport = Math.round(dailyExport * 30);
+    }
+
+    // Gross retail bill for grid imports under progressive slabs:
+    const importBillData = monthlyGridImport > 0 ? calculateBillFromUnits(monthlyGridImport, discoKey) : { totalBill: 0 };
+    const grossImportBill = importBillData.totalBill;
+
+    // Export credit at wholesale NAEPP rate:
+    const exportCreditPkr = includeNetMetering ? Math.round(monthlyGridExport * naeppRate) : 0;
+
+    // Net post-solar residual bill & surplus export payout:
+    const netBillDiff = grossImportBill - exportCreditPkr;
+    const postBill = Math.max(0, netBillDiff);
+    const netExportPayout = Math.max(0, exportCreditPkr - grossImportBill);
+
+    // Monthly Savings compared to pre-solar bill:
+    // When solar eliminates the bill and earns net export credits, monthly gain includes the surplus payout
+    const monthlySavings = Math.max(0, (preBillPkr - postBill) + netExportPayout);
     const annualSavings = monthlySavings * 12;
 
-    // Payback Period (Months)
+    // Payback Period (Months & Years):
     const paybackMonths = annualSavings > 0 ? Math.round((avgCapex / annualSavings) * 12) : 0;
     const paybackYears = (paybackMonths / 12).toFixed(1);
 
-    // 5-Year & 10-Year Net Financial Gain
+    // 5-Year & 10-Year Net Financial Gain:
     const fiveYearNetSavings = Math.round((annualSavings * 5) - avgCapex);
     const tenYearNetSavings = Math.round((annualSavings * 10) - avgCapex);
 
@@ -294,6 +361,20 @@ const CalculatorEngine = (function () {
         netMeteringCost,
         l3StructureCost: Math.round(sizingResult.actualDcKw * 1000 * l3ExtraPerWatt),
         singlePhaseUpgradeFee
+      },
+      netBilling: {
+        isNetBilling: true,
+        systemType: isHybridWithBattery ? "hybrid_storage" : "ongrid_export",
+        naeppExportRate: naeppRate,
+        monthlyGenerationUnits: monthlyGenUnits,
+        daytimeSelfConsumptionUnits: monthlyDaytimeSelfConsumption,
+        batterySelfConsumptionUnits: monthlyBatterySelfConsumption,
+        gridImportUnits: monthlyGridImport,
+        gridExportUnits: monthlyGridExport,
+        grossImportBill,
+        exportCreditPkr,
+        netExportPayout,
+        selfConsumptionPercent: monthlyGenUnits > 0 ? Math.min(100, Math.round(((monthlyDaytimeSelfConsumption + monthlyBatterySelfConsumption) / monthlyGenUnits) * 100)) : 0
       },
       mountingType,
       meterType,
@@ -321,10 +402,11 @@ const CalculatorEngine = (function () {
     }
 
     const mountingType = options.mountingType || "standard";
+    const cityKey = options.cityKey || "karachi";
 
     // Target dropping consumption to 200 units (protected/low-slab threshold)
     const unitsToShave = monthlyUnits - 200;
-    const sweetSpotSizing = calculateSolarSizing(unitsToShave);
+    const sweetSpotSizing = calculateSolarSizing(unitsToShave, cityKey);
 
     // Turnkey capex for smaller daytime system (smaller 3kW/3.6kW inverter, no battery)
     const sweetPanelsCost = sweetSpotSizing.actualDcKw * 1000 * data.hardware.panel.pricePerWattPkr;

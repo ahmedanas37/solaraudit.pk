@@ -4,8 +4,11 @@
  * Triggers instant git synchronization whenever code is pushed to GitHub.
  */
 
-// Deployment secret key (matches GitHub webhook secret)
-$secret = 'solaraudit_deploy_2026';
+// Deployment secret key (reads from secure file outside webroot if present, with fallback)
+$secret_file = '/home/zynk/.deploy_secret';
+$secret = (file_exists($secret_file) && is_readable($secret_file))
+    ? trim((string)file_get_contents($secret_file))
+    : 'solaraudit_deploy_2026';
 
 // 1. Verify Authentication
 $authenticated = false;

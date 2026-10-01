@@ -5,12 +5,62 @@
  */
 
 const PdfGenerator = (function () {
-  function generateSpecificationSheet(calcState) {
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      alert("PDF library is still loading. Please try again in a moment.");
+  function ensureJsPdfLoaded(callback, onError) {
+    if (window.jspdf && window.jspdf.jsPDF) {
+      callback();
       return;
     }
+    const existing = document.getElementById("jspdf-script");
+    if (existing) {
+      if (window.jspdf && window.jspdf.jsPDF) {
+        callback();
+      } else {
+        existing.addEventListener("load", () => callback());
+        existing.addEventListener("error", (e) => {
+          if (typeof onError === "function") onError(e);
+        });
+      }
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = "jspdf-script";
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    script.onload = () => callback();
+    script.onerror = () => {
+      // Try fallback to unpkg CDN if cdnjs fails
+      const fallbackScript = document.createElement("script");
+      fallbackScript.id = "jspdf-script-fallback";
+      fallbackScript.src = "https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js";
+      fallbackScript.onload = () => callback();
+      fallbackScript.onerror = (err) => {
+        alert("Could not load PDF generation library. Please check your internet connection and ad-blocker settings.");
+        if (typeof onError === "function") onError(err);
+      };
+      document.head.appendChild(fallbackScript);
+    };
+    document.head.appendChild(script);
+  }
 
+  function generateSpecificationSheet(calcState, onComplete, onError) {
+    ensureJsPdfLoaded(
+      () => {
+        try {
+          renderPdf(calcState);
+        } catch (err) {
+          console.error("PDF rendering error:", err);
+          if (typeof onError === "function") onError(err);
+        } finally {
+          if (typeof onComplete === "function") onComplete();
+        }
+      },
+      (err) => {
+        if (typeof onError === "function") onError(err);
+        if (typeof onComplete === "function") onComplete();
+      }
+    );
+  }
+
+  function renderPdf(calcState) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
       orientation: "portrait",
@@ -179,6 +229,20 @@ const PdfGenerator = (function () {
     drawCell(left + colW4, curY, colW4, rowH, "Est. Monthly Savings", `Rs. ${calcState.financials.monthlySavings.toLocaleString()} / mo`);
     drawCell(left + (colW4 * 2), curY, colW4, rowH, "Payback Horizon", `~${calcState.financials.paybackYears} Yrs (${calcState.financials.paybackMonths} Mo)`);
     drawCell(left + (colW4 * 3), curY, colW4, rowH, "5-Year Cumulative Gain", `Rs. ${calcState.financials.fiveYearNetSavings.toLocaleString()}`);
+    curY += rowH;
+
+    // Row 2: 2026 NEPRA Net-Billing Financial Balance
+    const nb = calcState.financials.netBilling || {};
+    const sysTypeLabel = nb.systemType === "hybrid_storage" ? "Hybrid LiFePO4" : "On-Grid Net-Billing";
+    const exportUnits = nb.gridExportUnits || 0;
+    const exportCredit = nb.exportCreditPkr || 0;
+    const selfConsPct = nb.selfConsumptionPercent || 0;
+    const postBill = calcState.financials.postBillPkr || 0;
+
+    drawCell(left, curY, colW4, rowH, "2026 Regulatory Regime", `${sysTypeLabel}`);
+    drawCell(left + colW4, curY, colW4, rowH, "Self-Consumption Offset", `${selfConsPct}% Daylight & Storage`);
+    drawCell(left + (colW4 * 2), curY, colW4, rowH, "Monthly Grid Export", `${exportUnits} kWh (Rs. ${exportCredit.toLocaleString()})`);
+    drawCell(left + (colW4 * 3), curY, colW4, rowH, "Post-Solar Residual Bill", `Rs. ${postBill.toLocaleString()} / mo`);
     curY += rowH + 3.5;
 
     // ─────────────────────────────────────────────────────────────

@@ -143,7 +143,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Wire AC Runtime Hours Buttons
+  // Helper: Toggle Two-State Segmented Cards with Guaranteed Min-44px Touch Targets
+  function setCardButtonState(activeBtn, inactiveBtn) {
+    if (activeBtn) {
+      activeBtn.className = "min-h-[44px] p-2.5 rounded-lg border border-slate-900 bg-slate-900 text-white font-semibold text-left transition-all cursor-pointer";
+      const title = activeBtn.querySelector("div:first-child");
+      const sub = activeBtn.querySelector("div:nth-child(2)");
+      if (title) title.className = "font-bold text-white";
+      if (sub) sub.className = "text-[11px] text-slate-300";
+    }
+    if (inactiveBtn) {
+      inactiveBtn.className = "min-h-[44px] p-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold text-left hover:border-slate-400 transition-all cursor-pointer";
+      const title = inactiveBtn.querySelector("div:first-child");
+      const sub = inactiveBtn.querySelector("div:nth-child(2)");
+      if (title) title.className = "font-bold text-slate-900";
+      if (sub) sub.className = "text-[11px] text-slate-600";
+    }
+  }
+
+  // Helper: Toggle Mode Buttons with Min-44px Touch Targets
+  function setModeButtonsState(isBill) {
+    if (isBill) {
+      inputModeBillBtn.className = "min-h-[44px] py-2 px-4 rounded-md bg-white text-slate-900 font-semibold shadow-xs border border-slate-200 text-xs sm:text-sm transition-all cursor-pointer";
+      inputModeApplianceBtn.className = "min-h-[44px] py-2 px-4 rounded-md text-slate-700 hover:text-slate-900 font-semibold text-xs sm:text-sm transition-all cursor-pointer";
+    } else {
+      inputModeApplianceBtn.className = "min-h-[44px] py-2 px-4 rounded-md bg-white text-slate-900 font-semibold shadow-xs border border-slate-200 text-xs sm:text-sm transition-all cursor-pointer";
+      inputModeBillBtn.className = "min-h-[44px] py-2 px-4 rounded-md text-slate-700 hover:text-slate-900 font-semibold text-xs sm:text-sm transition-all cursor-pointer";
+    }
+  }
+
+  // Wire AC Runtime Hours Buttons (Preserving Min-44px Targets)
   ["ac15", "ac10"].forEach((acKey) => {
     const group = document.getElementById(`hoursGroup_${acKey}`);
     if (group) {
@@ -151,9 +180,9 @@ document.addEventListener("DOMContentLoaded", function () {
       buttons.forEach((btn) => {
         btn.addEventListener("click", () => {
           buttons.forEach((b) => {
-            b.className = "px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:border-slate-400";
+            b.className = "min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 cursor-pointer transition-all";
           });
-          btn.className = "px-2 py-0.5 rounded border border-slate-900 bg-slate-900 text-white font-medium";
+          btn.className = "min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-900 bg-slate-900 text-white cursor-pointer transition-all";
           state.appliances[`${acKey}_hours`] = parseInt(btn.getAttribute("data-hours"), 10);
           recalculate();
         });
@@ -199,8 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Event Listeners: Input Mode
   inputModeBillBtn.addEventListener("click", () => {
     state.inputMode = "bill";
-    inputModeBillBtn.className = "py-1.5 px-3.5 rounded-md bg-white text-slate-900 font-semibold shadow-sm border border-slate-200 text-xs transition-all";
-    inputModeApplianceBtn.className = "py-1.5 px-3.5 rounded-md text-slate-600 hover:text-slate-900 text-xs transition-all";
+    setModeButtonsState(true);
     billInputSection.classList.remove("hidden");
     applianceInputSection.classList.add("hidden");
     recalculate();
@@ -208,8 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   inputModeApplianceBtn.addEventListener("click", () => {
     state.inputMode = "appliances";
-    inputModeApplianceBtn.className = "py-1.5 px-3.5 rounded-md bg-white text-slate-900 font-semibold shadow-sm border border-slate-200 text-xs transition-all";
-    inputModeBillBtn.className = "py-1.5 px-3.5 rounded-md text-slate-600 hover:text-slate-900 text-xs transition-all";
+    setModeButtonsState(false);
     applianceInputSection.classList.remove("hidden");
     billInputSection.classList.add("hidden");
     recalculate();
@@ -225,16 +252,14 @@ document.addEventListener("DOMContentLoaded", function () {
   // Meter Phase Selection
   meterThreePhaseBtn.addEventListener("click", () => {
     state.meterType = "three_phase";
-    meterThreePhaseBtn.className = "py-1 px-3 rounded font-medium text-slate-900 bg-white shadow-xs transition-all";
-    meterSinglePhaseBtn.className = "py-1 px-3 rounded font-medium text-slate-500 hover:text-slate-800 transition-all";
+    setCardButtonState(meterThreePhaseBtn, meterSinglePhaseBtn);
     singlePhaseNotice.classList.add("hidden");
     recalculate();
   });
 
   meterSinglePhaseBtn.addEventListener("click", () => {
     state.meterType = "single_phase";
-    meterSinglePhaseBtn.className = "py-1 px-3 rounded font-medium text-slate-900 bg-white shadow-xs transition-all";
-    meterThreePhaseBtn.className = "py-1 px-3 rounded font-medium text-slate-500 hover:text-slate-800 transition-all";
+    setCardButtonState(meterSinglePhaseBtn, meterThreePhaseBtn);
     singlePhaseNotice.classList.remove("hidden");
     recalculate();
   });
@@ -264,30 +289,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
   batteryTypeLithium.addEventListener("click", () => {
     state.batteryPreference = "lithium";
-    batteryTypeLithium.className = "p-3 rounded-lg border-2 border-slate-900 bg-slate-50 text-slate-900 text-left transition-all";
-    batteryTypeTubular.className = "p-3 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 text-left transition-all";
+    setCardButtonState(batteryTypeLithium, batteryTypeTubular);
     recalculate();
   });
 
   batteryTypeTubular.addEventListener("click", () => {
     state.batteryPreference = "tubular";
-    batteryTypeTubular.className = "p-3 rounded-lg border-2 border-slate-900 bg-slate-50 text-slate-900 text-left transition-all";
-    batteryTypeLithium.className = "p-3 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 text-left transition-all";
+    setCardButtonState(batteryTypeTubular, batteryTypeLithium);
     recalculate();
   });
 
   // Rooftop Structure Selection
   structStandardBtn.addEventListener("click", () => {
     state.mountingType = "standard";
-    structStandardBtn.className = "p-3 rounded-lg border-2 border-slate-900 bg-slate-50 text-slate-900 text-left transition-all";
-    structElevatedBtn.className = "p-3 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 text-left transition-all";
+    setCardButtonState(structStandardBtn, structElevatedBtn);
     recalculate();
   });
 
   structElevatedBtn.addEventListener("click", () => {
     state.mountingType = "elevated";
-    structElevatedBtn.className = "p-3 rounded-lg border-2 border-slate-900 bg-slate-50 text-slate-900 text-left transition-all";
-    structStandardBtn.className = "p-3 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 text-left transition-all";
+    setCardButtonState(structElevatedBtn, structStandardBtn);
     recalculate();
   });
 
@@ -383,7 +404,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const financials = CalculatorEngine.calculateFinancials(sizing, battery, targetBill, state.discoKey, state.includeNetMetering, options);
 
     // 4. Sweet Spot calculation (compares against full turnkey capex)
-    const sweetSpot = CalculatorEngine.calculateSweetSpot(monthlyUnits, state.discoKey, financials.avgCapex, options);
+    const sweetSpot = CalculatorEngine.calculateSweetSpot(monthlyUnits, state.discoKey, financials.avgCapex, {
+      ...options,
+      cityKey: state.cityKey
+    });
 
     // Store calculated state for PDF and sharing
     state.calculatedState = {
@@ -432,6 +456,33 @@ document.addEventListener("DOMContentLoaded", function () {
     outPaybackPeriod.textContent = `${c.financials.paybackYears} Years`;
     out5YearProfit.textContent = `Rs. ${(c.financials.fiveYearNetSavings / 100000).toFixed(1)} Lakhs`;
 
+    // 2026 Net-Billing Breakdown Grid
+    const nb = c.financials.netBilling;
+    if (nb) {
+      const nbSelfConsumption = document.getElementById("nbSelfConsumption");
+      const nbExportCredit = document.getElementById("nbExportCredit");
+      const nbPostBill = document.getElementById("nbPostBill");
+      const nbNote = document.getElementById("nbNote");
+
+      if (nbSelfConsumption) {
+        const totalSelfCons = nb.daytimeSelfConsumptionUnits + (nb.batterySelfConsumptionUnits || 0);
+        nbSelfConsumption.textContent = `~${totalSelfCons} units (${nb.selfConsumptionPercent}%)`;
+      }
+      if (nbExportCredit) {
+        nbExportCredit.textContent = `${nb.gridExportUnits} units (Rs. ${nb.exportCreditPkr.toLocaleString()})`;
+      }
+      if (nbPostBill) {
+        nbPostBill.textContent = `Rs. ${c.financials.postBillPkr.toLocaleString()} / mo`;
+      }
+      if (nbNote) {
+        if (nb.systemType === "hybrid_storage") {
+          nbNote.innerHTML = `<strong>2026 Net-Billing (Hybrid LiFePO4):</strong> High-efficiency battery storage captures ~${nb.batterySelfConsumptionUnits} daytime units to run ACs overnight, displacing expensive night retail tariffs (~Rs. 45–60/kWh). Excess ${nb.gridExportUnits} units are credited at wholesale NAEPP rate (~Rs. ${nb.naeppExportRate}/kWh).`;
+        } else {
+          nbNote.innerHTML = `<strong>2026 Net-Billing (On-Grid):</strong> Daytime generation self-consumes directly (~${nb.daytimeSelfConsumptionUnits} units); surplus ${nb.gridExportUnits} units export at wholesale NAEPP (~Rs. ${nb.naeppExportRate}/kWh). Night load (${nb.gridImportUnits} units) is imported from grid under progressive slabs.`;
+        }
+      }
+    }
+
     // Sweet Spot / Slab-Breaker Box
     if (c.sweetSpot && c.sweetSpot.capexReductionPercent > 15) {
       sweetSpotContainer.classList.remove("hidden");
@@ -448,6 +499,14 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       sweetSpotContainer.classList.add("hidden");
     }
+
+    // Update Sticky Mobile Summary Bar (<1024px)
+    const mobileStickyKw = document.getElementById("mobileStickyKw");
+    const mobileStickyPanels = document.getElementById("mobileStickyPanels");
+    const mobileStickySavings = document.getElementById("mobileStickySavings");
+    if (mobileStickyKw) mobileStickyKw.textContent = `${c.sizing.actualDcKw} kW`;
+    if (mobileStickyPanels) mobileStickyPanels.textContent = `(${c.sizing.panelCount} panels)`;
+    if (mobileStickySavings) mobileStickySavings.textContent = `Rs. ${c.financials.monthlySavings.toLocaleString()}`;
   }
 
   // Action: WhatsApp Sharing Generator
@@ -487,11 +546,36 @@ Contractor Quote Validator: https://solaraudit.online/solar-quote-validator.html
     window.open(waUrl, "_blank");
   });
 
-  // Action: Download PDF Specification Sheet
+  // Action: Download PDF Specification Sheet (with dynamic lazy-loading and error recovery)
   downloadPdfBtn.addEventListener("click", () => {
     if (!state.calculatedState) return;
-    PdfGenerator.generateSpecificationSheet(state.calculatedState);
+    const origText = downloadPdfBtn.innerHTML;
+    downloadPdfBtn.innerHTML = "<span>Generating PDF...</span>";
+    downloadPdfBtn.disabled = true;
+    PdfGenerator.generateSpecificationSheet(
+      state.calculatedState,
+      () => {
+        downloadPdfBtn.innerHTML = origText;
+        downloadPdfBtn.disabled = false;
+      },
+      (err) => {
+        downloadPdfBtn.innerHTML = origText;
+        downloadPdfBtn.disabled = false;
+      }
+    );
   });
+
+  // Action: Mobile Sticky Summary - Smooth scroll to results
+  const mobileViewBreakdownBtn = document.getElementById("mobileViewBreakdownBtn");
+  if (mobileViewBreakdownBtn) {
+    mobileViewBreakdownBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = document.getElementById("resultsSummaryAnchor") || document.getElementById("outDcKw")?.closest(".tool-card");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  }
 
   // Action: Download Visual Audit Card (PNG)
   const downloadPngCardBtn = document.getElementById("downloadPngCardBtn");

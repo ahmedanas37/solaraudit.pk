@@ -1,16 +1,23 @@
-/* SOLARAUDIT.ONLINE - Clean, Professional Utility Styles */
+/* SOLARAUDIT.ONLINE - High-Contrast Engineering Grade Utility Styles */
 
 :root {
   color-scheme: light !important;
   --bg-page: #f8fafc;
   --bg-card: #ffffff;
   --border-color: #e2e8f0;
+  --border-hover: #cbd5e1;
   --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --text-muted: #475569;
   --primary-brand: #0f172a;
-  --primary-accent: #1e3a8a;
-  --highlight-green: #15803d;
+  --primary-accent: #0284c7;
+  --highlight-emerald: #059669;
+  --highlight-emerald-bg: #ecfdf5;
+  --highlight-emerald-border: #a7f3d0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
@@ -21,60 +28,152 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Professional, Clean Range Slider */
+/* Accessibility Focus States */
+:focus-visible {
+  outline: 2px solid #0f172a !important;
+  outline-offset: 2px !important;
+}
+
+/* Engineering Grade Range Slider */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 6px;
+  height: 8px;
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 9999px;
   outline: none;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+input[type="range"]:hover {
+  background: #94a3b8;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: #0f172a;
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s ease, background-color 0.1s ease;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.25);
+  transition: transform 0.12s ease, background-color 0.12s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-  background: #1e293b;
+  transform: scale(1.15);
+  background: #059669;
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.22);
+  background: #047857;
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: #0f172a;
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.25);
 }
 
-/* Subtle transitions */
-button, select, input {
-  transition: all 0.15s ease-in-out;
+/* Clean Form Controls */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.2rem;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-/* Clean cards */
+/* High-Contrast Linear / Stripe Cards */
 .tool-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Clean numeric readouts */
-.stat-value {
+.tool-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+/* Crisp Tabular Numeric Readouts */
+.stat-value, [id^="out"], [id^="sweetSpot"], [id^="quoteRate"] {
   font-variant-numeric: tabular-nums;
 }
+
+/* Min 44px Touch Targets */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Subtle transitions */
+button, select, input, a {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Custom Shadow Utilities */
+.shadow-2xs {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.shadow-xs {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.sticky-mobile-bar {
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* Accessible Details / FAQ Summary */
+details summary::-webkit-details-marker {
+  display: none;
+}
+details > summary {
+  list-style: none;
+}
+
+/* Night AC Toggle Switch Component */
+.toggle-switch-track {
+  width: 2.25rem;
+  height: 1.25rem;
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-switch-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1rem;
+  height: 1rem;
+  background-color: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+  transition: transform 0.2s ease;
+}
+
+input:checked + .toggle-switch-track {
+  background-color: #0f172a;
+}
+
+input:checked + .toggle-switch-track::after {
+  transform: translateX(1rem);
+}
+
