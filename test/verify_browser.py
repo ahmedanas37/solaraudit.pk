@@ -113,6 +113,27 @@ def run_browser_verification():
         page_desk.wait_for_timeout(200)
         assert page_desk.is_visible("#billInputSection"), "Bill section should be visible"
 
+        # 10. Test Quick Bill Preset Chip
+        print("Testing quick bill preset chips...")
+        preset_85k_btn = page_desk.locator("button[data-preset-val='85000']")
+        preset_85k_btn.click()
+        page_desk.wait_for_timeout(200)
+        assert "85,000" in page_desk.locator("#heroPreBill").inner_text()
+        assert page_desk.locator("#billInputNumber").input_value() == "85000"
+
+        # 11. Test Direct Editable Number Input
+        print("Testing direct editable bill input...")
+        page_desk.fill("#billInputNumber", "60000")
+        page_desk.wait_for_timeout(200)
+        assert "60,000" in page_desk.locator("#heroPreBill").inner_text()
+        assert "60,000" in page_desk.locator("#billValueDisplay").inner_text()
+
+        # 12. Verify Hero Solar Verdict Elements
+        assert page_desk.is_visible("#heroPreBill"), "Hero Pre-Bill missing"
+        assert page_desk.is_visible("#heroPostBill"), "Hero Post-Bill missing"
+        assert page_desk.is_visible("#heroSavingsBar"), "Hero Savings Bar missing"
+        print("Hero Solar Verdict:", page_desk.locator("#heroPreBill").inner_text(), "->", page_desk.locator("#heroPostBill").inner_text(), "| Saved:", page_desk.locator("#heroNetPocket").inner_text())
+
         # 7. Test Quote Validator Interaction
         print("Testing Contractor Quote Validator...")
         page_desk.fill("#quoteKwInput", "6")
@@ -141,7 +162,10 @@ def run_browser_verification():
         print("jsPDF loaded dynamically on click:", has_jspdf_after)
         assert has_jspdf_after, "jsPDF must be dynamically loaded when user clicks Download PDF!"
 
-        # Screenshot Desktop
+        # Scroll to top and screenshot Desktop
+        page_desk.evaluate("() => window.scrollTo(0, 0)")
+        page_desk.wait_for_timeout(200)
+        page_desk.screenshot(path=r"C:\Users\Anas\.gemini\antigravity\brain\bafcd24f-3ad9-405d-801f-292418080847\desktop_viewport.png")
         page_desk.screenshot(path=SCREENSHOT_DESKTOP, full_page=True)
         page_desk.close()
 

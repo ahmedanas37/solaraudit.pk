@@ -49,6 +49,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const cityIrradianceClimate = document.getElementById("cityIrradianceClimate");
   const billSlider = document.getElementById("billSlider");
   const billValueDisplay = document.getElementById("billValueDisplay");
+  const billInputNumber = document.getElementById("billInputNumber");
+  const heroPreBill = document.getElementById("heroPreBill");
+  const heroPostBill = document.getElementById("heroPostBill");
+  const heroNetPocket = document.getElementById("heroNetPocket");
+  const heroSavingsBar = document.getElementById("heroSavingsBar");
+  const heroSavingsPercent = document.getElementById("heroSavingsPercent");
   const inputModeBillBtn = document.getElementById("modeBillBtn");
   const inputModeApplianceBtn = document.getElementById("modeApplianceBtn");
   const billInputSection = document.getElementById("billInputSection");
@@ -242,11 +248,58 @@ document.addEventListener("DOMContentLoaded", function () {
     recalculate();
   });
 
+  // Bill Preset Chips Helper
+  function updatePresetChipsActive(currentVal) {
+    document.querySelectorAll(".bill-preset-chip").forEach((btn) => {
+      const pVal = parseInt(btn.getAttribute("data-preset-val"), 10);
+      if (pVal === currentVal) {
+        btn.className = "bill-preset-chip active-preset px-2 py-1.5 text-center font-bold rounded-md border border-slate-900 bg-slate-900 text-white transition-all cursor-pointer";
+        const sub = btn.querySelector("span");
+        if (sub) sub.className = "text-[10px] text-slate-300 block";
+      } else {
+        btn.className = "bill-preset-chip px-2 py-1.5 text-center font-medium rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-all cursor-pointer";
+        const sub = btn.querySelector("span");
+        if (sub) sub.className = "text-[10px] text-slate-500 block";
+      }
+    });
+  }
+
   // Bill Slider
   billSlider.addEventListener("input", (e) => {
     state.billPkr = parseInt(e.target.value, 10);
-    billValueDisplay.textContent = `Rs. ${state.billPkr.toLocaleString()}`;
+    if (billValueDisplay) billValueDisplay.textContent = `Rs. ${state.billPkr.toLocaleString()}`;
+    if (billInputNumber) billInputNumber.value = state.billPkr;
+    updatePresetChipsActive(state.billPkr);
     recalculate();
+  });
+
+  // Direct Number Input
+  if (billInputNumber) {
+    billInputNumber.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 1000) {
+        state.billPkr = val;
+        if (billSlider) billSlider.value = Math.min(500000, Math.max(8000, val));
+        if (billValueDisplay) billValueDisplay.textContent = `Rs. ${val.toLocaleString()}`;
+        updatePresetChipsActive(val);
+        recalculate();
+      }
+    });
+  }
+
+  // Preset Chips Click Handlers
+  document.querySelectorAll(".bill-preset-chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const presetVal = parseInt(btn.getAttribute("data-preset-val"), 10);
+      if (presetVal) {
+        state.billPkr = presetVal;
+        if (billSlider) billSlider.value = Math.min(500000, presetVal);
+        if (billInputNumber) billInputNumber.value = presetVal;
+        if (billValueDisplay) billValueDisplay.textContent = `Rs. ${presetVal.toLocaleString()}`;
+        updatePresetChipsActive(presetVal);
+        recalculate();
+      }
+    });
   });
 
   // Meter Phase Selection
@@ -366,8 +419,10 @@ document.addEventListener("DOMContentLoaded", function () {
       monthlyUnits = breakdown.totalMonthlyUnits;
       targetBill = breakdown.estimatedBillPkr;
       state.billPkr = targetBill;
-      billValueDisplay.textContent = `Rs. ${targetBill.toLocaleString()}`;
+      if (billValueDisplay) billValueDisplay.textContent = `Rs. ${targetBill.toLocaleString()}`;
+      if (billInputNumber) billInputNumber.value = targetBill;
       billSlider.value = Math.min(500000, targetBill);
+      updatePresetChipsActive(targetBill);
 
       if (applianceTotalUnitsDisplay) {
         applianceTotalUnitsDisplay.textContent = `~${monthlyUnits.toLocaleString()} Units`;
@@ -426,6 +481,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateUI(c) {
+    // Hero Solar Verdict Banner
+    if (heroPreBill) heroPreBill.textContent = `Rs. ${c.preBillPkr.toLocaleString()}`;
+    if (heroPostBill) heroPostBill.textContent = `Rs. ${c.financials.postBillPkr.toLocaleString()}`;
+    if (heroNetPocket) heroNetPocket.textContent = `+Rs. ${c.financials.monthlySavings.toLocaleString()} / mo`;
+    const savingsPercent = Math.min(100, Math.max(0, Math.round((c.financials.monthlySavings / (c.preBillPkr || 1)) * 100)));
+    if (heroSavingsPercent) heroSavingsPercent.textContent = `-${savingsPercent}% Bill Drop`;
+    if (heroSavingsBar) heroSavingsBar.style.width = `${savingsPercent}%`;
+
     // Hardware Cards
     outDcKw.textContent = `${c.sizing.actualDcKw} kW`;
     outPanelCount.textContent = `${c.sizing.panelCount} panels (580W N-Type)`;
@@ -606,6 +669,10 @@ Contractor Quote Validator: https://solaraudit.online/solar-quote-validator.html
   if (billSlider && billValueDisplay) {
     billSlider.value = state.billPkr;
     billValueDisplay.textContent = `Rs. ${state.billPkr.toLocaleString()}`;
+  }
+  if (billInputNumber) {
+    billInputNumber.value = state.billPkr;
+    updatePresetChipsActive(state.billPkr);
   }
   if (nightAcToggle) {
     nightAcToggle.checked = state.nightAcEnabled;
