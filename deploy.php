@@ -58,7 +58,7 @@ $commands = [
 // Optional: also trigger cPanel deployment task if uapi is accessible
 $uapi_bin = '/usr/local/cpanel/bin/uapi';
 if (file_exists($uapi_bin)) {
-    $commands[] = "{$uapi_bin} VersionControl deployment create repository_root={$repo_dir} 2>&1";
+    $commands[] = "({$uapi_bin} VersionControl deployment create repository_root={$repo_dir} 2>&1 || true)";
 }
 
 $full_cmd = implode(' && ', $commands);
