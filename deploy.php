@@ -39,12 +39,20 @@ if (!$authenticated) {
 // 2. Deployment Execution
 $repo_dir = '/home/zynk/solaraudit.online';
 
+// Set HOME and PATH environment variables so git does not fail with "fatal: $HOME not set"
+putenv('HOME=/home/zynk');
+putenv('PATH=/usr/local/cpanel/3rdparty/bin:/usr/local/bin:/usr/bin:/bin');
+$_ENV['HOME'] = '/home/zynk';
+
 // Ensure Git uses safe directory settings and clean reset to avoid merge conflicts
 $commands = [
+    "export HOME=/home/zynk",
+    "export PATH=/usr/local/cpanel/3rdparty/bin:/usr/local/bin:/usr/bin:/bin:$PATH",
     "cd {$repo_dir}",
-    "git config --global --add safe.directory {$repo_dir} 2>&1",
-    "git fetch origin master 2>&1",
-    "git reset --hard origin/master 2>&1"
+    "git config --add safe.directory {$repo_dir} 2>&1",
+    "git remote set-url origin https://github.com/ahmedanas37/solaraudit.pk.git 2>&1",
+    "git fetch https://github.com/ahmedanas37/solaraudit.pk.git master 2>&1",
+    "git reset --hard FETCH_HEAD 2>&1"
 ];
 
 // Optional: also trigger cPanel deployment task if uapi is accessible
