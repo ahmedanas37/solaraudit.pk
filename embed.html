@@ -77,7 +77,10 @@
   frameborder="0" 
   style="border-radius:12px; border:1px solid #e2e8f0; max-width:440px;"
   title="Pakistan Solar Sizing Calculator"&gt;
-&lt;/iframe&gt;</pre>
+&lt;/iframe&gt;
+&lt;p style="font-size:11px; color:#64748b; margin-top:4px; max-width:440px; text-align:right;"&gt;
+  Powered by &lt;a href="https://solaraudit.online" target="_blank" rel="noopener" style="color:#059669; text-decoration:underline;"&gt;SolarAudit Pakistan&lt;/a&gt;
+&lt;/p&gt;</pre>
         </div>
 
         <button id="copyEmbedBtn" class="w-full py-2.5 px-4 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer">
@@ -90,9 +93,10 @@
         <div class="bg-white p-4 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
           <div class="font-bold text-slate-800">Why Embed SOLARAUDIT?</div>
           <ul class="list-disc list-inside space-y-1.5 text-slate-500">
-            <li><strong class="text-slate-700">100% Client-Side Engine:</strong> Embedded tariff logic runs instantly in the user's browser with zero backend server lag (<50ms).</li>
-            <li><strong class="text-slate-700">Zero Maintenance:</strong> Automatically incorporates active NEPRA & DISCO progressive slabs without requiring API updates on your end.</li>
-            <li><strong class="text-slate-700">Boosts Time-on-Page:</strong> Interactive sliders increase visitor engagement and dwell time, directly benefiting your SEO.</li>
+            <li><strong class="text-slate-700">100% Client-Side Engine:</strong> Embedded tariff logic runs instantly in the user's browser with zero backend server lag (&lt;50ms).</li>
+            <li><strong class="text-slate-700">Zero Maintenance:</strong> Automatically incorporates active NEPRA &amp; DISCO progressive slabs without requiring API updates on your end.</li>
+            <li><strong class="text-slate-700">Boosts Dwell Time:</strong> Interactive sliders increase visitor engagement and time-on-page, directly benefiting your search ranking.</li>
+            <li><strong class="text-slate-700">Easy WordPress Integration:</strong> Paste directly into any "Custom HTML" block in Gutenberg, Elementor, or Divi.</li>
             <li><strong class="text-slate-700">Free Forever:</strong> Zero subscription fees, zero tracking cookies, and 100% ad-free frame.</li>
           </ul>
         </div>
@@ -114,7 +118,7 @@
 
     function updateSnippet() {
       const city = citySelect.value;
-      snippetPre.innerText = `<iframe \n  src="https://solaraudit.online/widget.html?v=2026.2&city=${city}" \n  width="100%" \n  height="490" \n  frameborder="0" \n  style="border-radius:12px; border:1px solid #e2e8f0; max-width:440px;"\n  title="Pakistan Solar Sizing Calculator">\n</iframe>`;
+      snippetPre.innerText = `<iframe \n  src="https://solaraudit.online/widget.html?v=2026.2&city=${city}" \n  width="100%" \n  height="490" \n  frameborder="0" \n  style="border-radius:12px; border:1px solid #e2e8f0; max-width:440px;"\n  title="Pakistan Solar Sizing Calculator">\n</iframe>\n<p style="font-size:11px; color:#64748b; margin-top:4px; max-width:440px; text-align:right;">\n  Powered by <a href="https://solaraudit.online" target="_blank" rel="noopener" style="color:#059669; text-decoration:underline;">SolarAudit Pakistan</a>\n</p>`;
       if (previewIframe) {
         previewIframe.src = `/widget.html?v=2026.2&city=${city}`;
       }

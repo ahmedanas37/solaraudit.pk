@@ -71,6 +71,7 @@ const PdfGenerator = (function () {
     // Color Palette: Clean, professional engineering print palette
     const slate900 = [15, 23, 42];   // Primary headings & values
     const slate800 = [30, 41, 59];   // Text
+    const slate700 = [51, 65, 85];   // Body subheadings
     const slate600 = [71, 85, 105];  // Secondary text & notes
     const slate500 = [100, 116, 139];// Labels
     const slate300 = [203, 213, 225];// Box borders
@@ -380,11 +381,171 @@ const PdfGenerator = (function () {
     doc.setTextColor(slate500[0], slate500[1], slate500[2]);
 
     // Line 1
-    doc.text("SOLARAUDIT.ONLINE • Independent Pre-Contract Solar Audit Specification Sheet", left, footerY + 3.8);
+    doc.text("SOLARAUDIT.ONLINE • Page 1 of 2 • Solar Engineering Audit & Specification Sheet", left, footerY + 3.8);
     doc.text("Verify or recalculate online: https://solaraudit.online", right, footerY + 3.8, { align: "right" });
 
     // Line 2
     doc.text("Calculations calibrated against NEPRA 2026 tariff determinations and wholesale equipment benchmarks in Pakistan.", left, footerY + 7.2);
+    doc.text(`Doc ID: ${refCode}`, right, footerY + 7.2, { align: "right" });
+
+    // ─────────────────────────────────────────────────────────────
+    // 8. PAGE 2: CONTRACTOR TENDER SPECIFICATION & BUYER'S DEFENSE
+    // ─────────────────────────────────────────────────────────────
+    doc.addPage("a4", "portrait");
+
+    // Decorative top bar
+    doc.setFillColor(slate900[0], slate900[1], slate900[2]);
+    doc.rect(left, 10, contentWidth, 1.5, "F");
+
+    // Row 1: Brand & Reference
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14.5);
+    doc.setTextColor(slate900[0], slate900[1], slate900[2]);
+    doc.text("SOLARAUDIT.ONLINE", left, 17.5);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(slate500[0], slate500[1], slate500[2]);
+    doc.text(`Audit Ref: ${refCode}  •  Page 2 of 2  •  ${dateStr}`, right, 17.5, { align: "right" });
+
+    // Row 2: Subtitle
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(slate600[0], slate600[1], slate600[2]);
+    doc.text("Annexure B: Contractor Tender RFP & Hardware Verification Standards", left, 22.5);
+
+    doc.setFontSize(7.5);
+    doc.setTextColor(slate500[0], slate500[1], slate500[2]);
+    doc.text(`Target City: ${cityName}  •  Competitive EPC Bidding`, right, 22.5, { align: "right" });
+
+    // Divider line
+    doc.setDrawColor(slate200[0], slate200[1], slate200[2]);
+    doc.setLineWidth(0.35);
+    doc.line(left, 26.0, right, 26.0);
+
+    let p2Y = 30.0;
+
+    // SECTION 6: MANDATORY BILL OF QUANTITIES (BoQ) SIZING TARGETS
+    drawSectionHeader(p2Y, "6", "Mandatory Engineering Scope & Hardware Sizing Targets");
+    p2Y += 6;
+
+    const rowH2 = 9.5;
+    const p2ColW = contentWidth / 2;
+
+    const boqItems = [
+      { l1: "Target DC Array Capacity", v1: `${calcState.sizing.actualDcKw} kW DC (${calcState.sizing.panelCount}x 580W)`, l2: "Approved PV Modules", v2: "Tier-1 N-Type TOPCon Bifacial" },
+      { l1: "Inverter Specification", v1: `${calcState.sizing.inverterKw} kW Hybrid (Dual MPPT, IP65)`, l2: "Mounting Structure", v2: calcState.mountingType === "elevated" ? "Elevated Walkable L3 Pergola (8-10ft)" : "Standard L2 Ground / Low Profile" },
+      { l1: "Energy Storage Scope", v1: calcState.battery ? calcState.battery.unitSpec : "None (Daytime Net-Metering)", l2: "Fair Turnkey Target Budget", v2: `Rs. ${(calcState.financials.capexMin / 100000).toFixed(1)}L – ${(calcState.financials.capexMax / 100000).toFixed(1)} Lakhs` },
+      { l1: "Grid Meter Phase Conversion", v1: calcState.meterType === "single_phase" ? "Single-Phase (3-Phase Upgrade Mandated)" : "3-Phase Ready (Net-Metering)", l2: "Estimated Daylight Yield", v2: `~${calcState.monthlyUnits} Units/mo Generation` }
+    ];
+
+    boqItems.forEach((r, idx) => {
+      const y = p2Y + idx * rowH2;
+      drawCell(left, y, p2ColW, rowH2, r.l1, r.v1);
+      drawCell(left + p2ColW, y, p2ColW, rowH2, r.l2, r.v2);
+    });
+    p2Y += boqItems.length * rowH2 + 4.5;
+
+    // SECTION 7: HARDWARE INTEGRITY & FRAUD-PREVENTION CLAUSES (Buyer's Shield)
+    drawSectionHeader(p2Y, "7", "Mandatory EPC Hardware Verification Clauses (Zero-Tolerance)");
+    p2Y += 6;
+
+    const clauses = [
+      { code: "CLAUSE 7.1", title: "Tier-1 Barcode Authenticity", text: "All modules must carry laser-etched serial barcodes verifiable via official manufacturer database (Longi, Jinko, JA Solar, Canadian Solar). Re-labeled or B-grade flash-test modules will result in immediate contract cancellation and refund." },
+      { code: "CLAUSE 7.2", title: "100% Pure Tinned Copper DC Cabling", text: "DC string wiring must strictly be 100% pure annealed tinned copper (min 6mm², double-insulated, UV-resistant XLPE). Copper-clad aluminum (CCA) or undersized 4mm² wire on long runs will be rejected upon site electrical inspection." },
+      { code: "CLAUSE 7.3", title: "Comprehensive Surge Protection & Earthing", text: "Installer must provide genuine Type-II DC SPDs for each MPPT tracker, Type-II AC SPD in DB, and dedicated copper earthing with measured soil resistance under 5.0 Ohms certified with a digital earth tester." },
+      { code: "CLAUSE 7.4", title: "Neutral-to-Ground Bonding & Grid Safety", text: "Inverter AC output must maintain zero floating voltage (neutral-to-ground voltage < 2.0V) to prevent appliance compressor damage. Anti-islanding grid disconnection must be verified prior to commissioning." },
+      { code: "CLAUSE 7.5", title: "Net-Metering Regulatory SLA & Green Meter", text: "The EPC contractor is contractually responsible for end-to-end DISCO documentation, preparation of Single-Line Diagrams (SLD), NEPRA SRO compliance, and green meter installation within 45 days of roof mechanical completion." },
+      { code: "CLAUSE 7.6", title: "Linear Output & Equipment Warranties", text: "Deliverable includes: 25-Year 84.8% minimum linear panel output warranty, 5-Year full inverter replacement warranty, and 1-Year on-site EPC workmanship guarantee covering structural mounts and weather seals." }
+    ];
+
+    const clauseH = 14.5;
+    clauses.forEach((c, idx) => {
+      const rowY = p2Y + idx * clauseH;
+      doc.setDrawColor(slate200[0], slate200[1], slate200[2]);
+      doc.setFillColor(idx % 2 === 0 ? 255 : slate50[0], idx % 2 === 0 ? 255 : slate50[1], idx % 2 === 0 ? 255 : slate50[2]);
+      doc.rect(left, rowY, contentWidth, clauseH, "FD");
+
+      // Checkbox square
+      doc.setDrawColor(slate500[0], slate500[1], slate500[2]);
+      doc.setFillColor(255, 255, 255);
+      doc.rect(left + 3, rowY + 3.5, 3.5, 3.5, "FD");
+
+      // Clause Tag
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.2);
+      doc.setTextColor(slate900[0], slate900[1], slate900[2]);
+      doc.text(`${c.code}: ${c.title.toUpperCase()}`, left + 9, rowY + 5.2);
+
+      // Clause Body Text (wrapped)
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.8);
+      doc.setTextColor(slate600[0], slate600[1], slate600[2]);
+      const splitText = doc.splitTextToSize(c.text, contentWidth - 12);
+      doc.text(splitText, left + 9, rowY + 9.2);
+    });
+    p2Y += clauses.length * clauseH + 4.5;
+
+    // SECTION 8: CONTRACTOR BIDDING SCHEDULE & QUOTATION SUBMISSION
+    drawSectionHeader(p2Y, "8", "Contractor Price & Equipment Tender Schedule (To Be Filled by Installer)");
+    p2Y += 6;
+
+    const bidTableH = 34;
+    doc.setDrawColor(slate300[0], slate300[1], slate300[2]);
+    doc.setFillColor(255, 255, 255);
+    doc.rect(left, p2Y, contentWidth, bidTableH, "FD");
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(slate700[0], slate700[1], slate700[2]);
+
+    // Row 1
+    doc.text("Quoted Module Brand & Model: ___________________________", left + 4, p2Y + 6);
+    doc.text("Total Quoted Panels: ______ x ______ Watts", left + p2ColW + 4, p2Y + 6);
+
+    // Row 2
+    doc.text("Quoted Inverter Brand & Model: __________________________", left + 4, p2Y + 13);
+    doc.text("Inverter Warranty: ______ Years Full Replacement", left + p2ColW + 4, p2Y + 13);
+
+    // Row 3
+    doc.text("DC Cable Brand (6mm² Tinned Cu): _______________________", left + 4, p2Y + 20);
+    doc.text("Battery Bank Quoted (if any): __________________________", left + p2ColW + 4, p2Y + 20);
+
+    // Row 4
+    doc.setFont("helvetica", "bold");
+    doc.text("TOTAL ALL-INCLUSIVE TURNKEY PRICE: Rs. _________________", left + 4, p2Y + 28);
+    doc.setFont("helvetica", "normal");
+    doc.text("Agreed Completion Timeline: ______ Days | Stamp: [           ]", left + p2ColW + 4, p2Y + 28);
+
+    // SECTION 9: BUYER AUDIT & COMPLAINT ADVISORY
+    p2Y += bidTableH + 3.5;
+    doc.setFillColor(slate100[0], slate100[1], slate100[2]);
+    doc.setDrawColor(slate300[0], slate300[1], slate300[2]);
+    doc.rect(left, p2Y, contentWidth, 11, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.2);
+    doc.setTextColor(slate900[0], slate900[1], slate900[2]);
+    doc.text("INDEPENDENT QUOTATION VALIDATION & NEPRA CONSUMER ADVISORY:", left + 3.5, p2Y + 4.2);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6.7);
+    doc.setTextColor(slate600[0], slate600[1], slate600[2]);
+    doc.text("Homeowners: Enter the contractor's quoted price into our automated BS Detector at https://solaraudit.online/solar-quote-validator.html", left + 3.5, p2Y + 8.2);
+
+    // PAGE 2 FOOTER
+    doc.setDrawColor(slate200[0], slate200[1], slate200[2]);
+    doc.setLineWidth(0.3);
+    doc.line(left, footerY, right, footerY);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6.8);
+    doc.setTextColor(slate500[0], slate500[1], slate500[2]);
+
+    doc.text("SOLARAUDIT.ONLINE • Page 2 of 2 • Annexure B: Contractor Tender RFP Dossier", left, footerY + 3.8);
+    doc.text("Verify or recalculate online: https://solaraudit.online", right, footerY + 3.8, { align: "right" });
+
+    doc.text("Independent consumer protection standard. Zero contractor commercial interest. Free public access across Pakistan.", left, footerY + 7.2);
     doc.text(`Doc ID: ${refCode}`, right, footerY + 7.2, { align: "right" });
 
     // Save PDF
@@ -394,9 +555,14 @@ const PdfGenerator = (function () {
     return doc;
   }
 
-  return {
+  const pdfGenObj = {
     generateSpecificationSheet
   };
+
+  if (typeof window !== "undefined") {
+    window.PdfGenerator = pdfGenObj;
+  }
+  return pdfGenObj;
 })();
 
 if (typeof module !== "undefined" && module.exports) {

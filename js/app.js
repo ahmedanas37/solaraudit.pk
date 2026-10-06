@@ -572,8 +572,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mobileStickySavings) mobileStickySavings.textContent = `Rs. ${c.financials.monthlySavings.toLocaleString()}`;
   }
 
-  // Action: WhatsApp Sharing Generator
-  shareWhatsAppBtn.addEventListener("click", () => {
+  // Action: WhatsApp Sharing Generator & Web Share API
+  shareWhatsAppBtn.addEventListener("click", async () => {
     if (!state.calculatedState) return;
     const c = state.calculatedState;
 
@@ -594,19 +594,31 @@ Payback Period: ~${c.financials.paybackYears} Years
 Free Independent Audit: https://solaraudit.online
 Contractor Quote Validator: https://solaraudit.online/solar-quote-validator.html`;
 
-    navigator.clipboard.writeText(shareText).catch(() => {});
-    copyFeedback.textContent = "✓ Summary copied! Opening WhatsApp...";
-    copyFeedback.classList.remove("hidden");
-    setTimeout(() => {
-      copyFeedback.classList.add("hidden");
-    }, 4000);
+    // Try Native Web Share first (shares high-contrast image card on mobile browsers)
+    let sharedViaNative = false;
+    if (window.VisualCard && typeof window.VisualCard.shareAuditCard === "function") {
+      try {
+        sharedViaNative = await window.VisualCard.shareAuditCard(c, shareText);
+      } catch (e) {
+        sharedViaNative = false;
+      }
+    }
 
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const waUrl = isMobile 
-      ? `whatsapp://send?text=${encodeURIComponent(shareText)}`
-      : `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-    
-    window.open(waUrl, "_blank");
+    if (!sharedViaNative) {
+      navigator.clipboard.writeText(shareText).catch(() => {});
+      copyFeedback.textContent = "✓ Summary copied! Opening WhatsApp...";
+      copyFeedback.classList.remove("hidden");
+      setTimeout(() => {
+        copyFeedback.classList.add("hidden");
+      }, 4000);
+
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const waUrl = isMobile 
+        ? `whatsapp://send?text=${encodeURIComponent(shareText)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+      
+      window.open(waUrl, "_blank");
+    }
   });
 
   // Action: Download PDF Specification Sheet (with dynamic lazy-loading and error recovery)

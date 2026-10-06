@@ -1326,6 +1326,7 @@ def render_master_page(page_def):
         <a href="/solar-panels-for-ac-pakistan.html" class="hover:text-slate-900 transition-colors">Solar for AC</a>
         <a href="/solar-batteries-pakistan.html" class="hover:text-slate-900 transition-colors">Batteries</a>
         <a href="/solar-quote-validator.html" class="hover:text-slate-900 transition-colors">Quote Validator</a>
+        <a href="/embed.html" class="hover:text-slate-900 transition-colors">Free Widget</a>
         <a href="/about.html" class="hover:text-slate-900 transition-colors">About</a>
         <a href="/privacy-policy.html" class="hover:text-slate-900 transition-colors">Privacy</a>
         <a href="/terms.html" class="hover:text-slate-900 transition-colors">Terms</a>
