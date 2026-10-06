@@ -89,7 +89,7 @@ A turnkey, zero-cost distribution playbook for syndicating the **SOLARAUDIT.ONLI
 ---
 
 ### Pitch Template 3: Housing Society Community Groups (DHA, Bahria, Askari)
-**Platform**: Facebook Resident Groups / WhatsApp Community Updates
+**Platform**: Resident Groups / WhatsApp Community Updates
 
 > ⚡ **Independent Tip for Residents Planning Solar in [Society Name] (Summer 2026)**
 >
@@ -134,7 +134,7 @@ A turnkey, zero-cost distribution playbook for syndicating the **SOLARAUDIT.ONLI
 20. **Solar Sigma** (`solarsigma.com`)
 
 ### Category D: High-Value Housing Society Communities
-21. **DHA Lahore Residents Community** (Facebook / WhatsApp)
+21. **DHA Lahore Residents Community** (Resident Welfare / WhatsApp Network)
 22. **DHA Karachi & Clifton Residents Group**
 23. **Bahria Town Lahore / Rawalpindi Community Portal**
 24. **Askari Residents Welfare Associations**
